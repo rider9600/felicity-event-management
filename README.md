@@ -1,251 +1,247 @@
-# Felicity Platform
+# Felicity Platform Backend API Testing Guide
 
-A comprehensive event management platform for Felicity - IIIT Hyderabad's cultural fest. This full-stack application supports participants, organizers, and administrators with role-based access and event management features.
+This document provides a comprehensive checklist for testing all backend API endpoints using Postman or any API client. Each endpoint includes the method, path, required headers/body, and the expected output. Use this as your testing phase before moving to frontend integration.
 
-## 🚀 Quick Start
+---
 
-### Prerequisites
+## Authentication
 
-- Node.js (v16+)
-- MongoDB (running locally or remote)
-- npm or yarn
+### 1. Register (Participant)
 
-### Installation & Running
+- **POST** `/point/auth/register`
+- **Body:**  
+  `{ "firstname": "Test", "lastname": "User", "email": "test@iiit.ac.in", "password": "test123", "participantType": "iiit" }`
+- **Expected:**  
+  200 OK, user object (no password), IIIT email required for `"iiit"` type
 
-```bash
-# 1. Install frontend dependencies
-npm install
+### 2. Login
 
-# 2. Install backend dependencies
-cd backend
-npm install
+- **POST** `/point/auth/login`
+- **Body:**  
+  `{ "email": "test@iiit.ac.in", "password": "test123" }`
+- **Expected:**  
+  200 OK, `{ token, refreshToken, user }`
 
-# 3. Make sure MongoDB is running
-# Windows: MongoDB service should be running
-# Mac/Linux: mongod
+### 3. Refresh Token
 
-# 4. Start both servers
-# Option A: Use the start script (Windows)
-start.bat
+- **POST** `/point/auth/refresh`
+- **Body:**  
+  `{ "refreshToken": "<refreshToken>" }`
+- **Expected:**  
+  200 OK, `{ token }`
 
-# Option B: Run in separate terminals
-# Terminal 1 - Backend
-cd backend
-npm run dev
+### 4. Logout
 
-# Terminal 2 - Frontend
-npm run dev
-```
+- **POST** `/point/auth/logout`
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Expected:**  
+  200 OK, `{ msg: "Logged out successfully" }`
 
-The application will be available at:
+---
 
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:5000
+## Participant Onboarding & Profile
 
-## 📚 Documentation
+### 5. Complete Onboarding
 
-- [Complete Setup Guide](SETUP_GUIDE.md) - Detailed installation and usage instructions
-- [Backend API Documentation](backend/README.md) - API endpoints and database schema
+- **POST** `/point/participant/onboarding`
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Body:**  
+  `{ "interests": ["music", "coding"], "followedClubs": ["<clubId>"] }`
+- **Expected:**  
+  200 OK, onboarding fields updated
 
-## ✨ Features
+### 6. Update Profile
 
-### For Participants (40 marks)
+- **PUT** `/point/participant/profile`
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Body:**  
+  `{ "firstname": "New", "interests": ["sports"] }`
+- **Expected:**  
+  200 OK, updated user object
 
-- 🔍 **Smart Event Browsing**: Filter by type, eligibility, date with search
-- 📋 **Event Registration**: Custom forms, team registration support
-- 🎫 **Ticket Management**: QR code tickets, view and cancel registrations
-- 📈 **Trending Events**: See popular events from last 24 hours
-- 👥 **Follow Organizers**: Stay updated with your favorite organizers
-- 🛍️ **Merchandise**: Purchase fest merchandise with stock management
+### 7. Get Dashboard
 
-### For Organizers (20 marks)
+- **GET** `/point/participant/dashboard`
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Expected:**  
+  200 OK, `{ upcoming, normalHistory, merchandiseHistory, completed, cancelledRejected }`
 
-- ✏️ **Event Creation**: Custom registration forms, eligibility settings
-- 📊 **Analytics Dashboard**: Registrations, attendance, revenue tracking
-- 👨‍👩‍👧‍👦 **Participant Management**: View and manage registrations
-- ✅ **Attendance Tracking**: QR code / ticket ID scanning
-- 🔔 **Discord Integration**: Webhook notifications for new registrations
-- 📦 **Merchandise Management**: Inventory and variant management
+### 8. Get Recommended Events
 
-### For Admins (10 marks)
+- **GET** `/point/participant/recommended-events`
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Expected:**  
+  200 OK, array of events sorted by preferences
 
-- 🏢 **Organizer Management**: Approve, reject, or remove organizers
-- 📊 **Platform Statistics**: User counts, events, revenue analytics
-- 🎯 **Event Oversight**: View, manage, and moderate all events
-- 🔐 **User Management**: Password resets, role management
+---
 
-## 🏗️ Tech Stack
+## Event Management
 
-### Frontend
+### 9. Create Event (Organizer)
 
-- **React 19** - UI library
-- **React Router v6** - Client-side routing
-- **Axios** - HTTP client
-- **Vite** - Build tool
-- **date-fns** - Date utilities
-- **qrcode.react** - QR code generation
+- **POST** `/point/events/`
+- **Header:**  
+  `Authorization: Bearer <organizerToken>`
+- **Body:**  
+  `{ "eventName": "Hackathon", ... }`
+- **Expected:**  
+  201 Created, event object
 
-### Backend
+### 10. Edit Event (Organizer/Admin)
 
-- **Express.js** - Web framework
-- **MongoDB** - Database
-- **Mongoose** - ODM
-- **JWT** - Authentication
-- **bcryptjs** - Password hashing
+- **PUT** `/point/events/:id` (organizer)  
+  `/point/admin/event/:id` (admin)
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Body:**  
+  `{ "eventDescription": "Updated desc" }`
+- **Expected:**  
+  200 OK, updated event object
 
-## 📂 Project Structure
+### 11. Delete Event (Organizer/Admin)
 
-```
-felicity-platform/
-├── backend/
-│   ├── config/         # Database configuration
-│   ├── controllers/    # Request handlers
-│   ├── middleware/     # Auth & error handling
-│   ├── models/         # Mongoose schemas
-│   ├── routes/         # API routes
-│   ├── utils/          # Helper functions
-│   └── server.js       # Entry point
-├── src/
-│   ├── components/     # Reusable components
-│   ├── context/        # React context (Auth)
-│   ├── pages/          # Page components
-│   │   ├── auth/       # Login, Signup, Onboarding
-│   │   ├── participant/# Participant features
-│   │   ├── organizer/  # Organizer features
-│   │   └── admin/      # Admin features
-│   ├── services/       # API service layer
-│   └── utils/          # Constants & helpers
-└── public/             # Static assets
-```
+- **DELETE** `/point/events/:id` (organizer)  
+  `/point/admin/event/:id` (admin)
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Expected:**  
+  200 OK, `{ message: "Event deleted" }`
 
-## 🔑 Environment Variables
+### 12. Search Events
 
-Create `backend/.env` (already created with defaults):
+- **GET** `/point/events/search?query=Hackathon&eventType=normal`
+- **Expected:**  
+  200 OK, array of events
 
-```env
-NODE_ENV=development
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/felicity
-JWT_SECRET=your_jwt_secret_key
-```
+### 13. Trending Events
 
-## 🧪 Testing
+- **GET** `/point/events/trending`
+- **Expected:**  
+  200 OK, array of trending events
 
-### Create Test Accounts
+---
 
-**Participant:**
+## Registration & Tickets
 
-```bash
-# Use the signup page or API:
-POST http://localhost:5000/api/auth/signup
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@iiit.ac.in",
-  "password": "password123",
-  "participantType": "iiit",
-  "collegeOrg": "IIIT Hyderabad",
-  "contactNumber": "9876543210"
-}
-```
+### 14. Register for Event
 
-**Organizer/Admin:**
-After creating a participant account, manually update the role in MongoDB:
+- **POST** `/point/registration/normal`
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Body:**  
+  `{ "eventId": "<eventId>", "formData": { ... } }`
+- **Expected:**  
+  201 Created, ticket object, email sent
 
-```javascript
-db.users.updateOne(
-  { email: "user@example.com" },
-  { $set: { role: "organizer", organizerName: "Tech Club" } },
-);
-```
+### 15. Purchase Merchandise
 
-### Access Dashboards
+- **POST** `/point/registration/merchandise`
+- **Header:**  
+  `Authorization: Bearer <token>`
+- **Body:**  
+  `{ "eventId": "<eventId>", "itemName": "...", ... }`
+- **Expected:**  
+  201 Created, ticket object, email sent
 
-- Participant: http://localhost:5173/participant/dashboard
-- Organizer: http://localhost:5173/organizer/dashboard
-- Admin: http://localhost:5173/admin/dashboard
+---
 
-## 📖 API Endpoints
+## Clubs
 
-### Authentication
+### 16. Create Club
 
-- `POST /api/auth/signup` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/profile` - Get user profile
-- `PUT /api/auth/profile` - Update profile
-- `PUT /api/auth/change-password` - Change password
+- **POST** `/point/clubs/`
+- **Header:**  
+  `Authorization: Bearer <adminToken>`
+- **Body:**  
+  `{ "name": "Music Club", ... }`
+- **Expected:**  
+  201 Created, club object
 
-### Events
+### 17. Get Clubs
 
-- `GET /api/events` - Get all events (filters: type, eligibility, date, search)
-- `GET /api/events/trending` - Get trending events
-- `GET /api/events/:id` - Get event details
-- `POST /api/events/:id/register` - Register for event
-- `POST /api/events/:id/purchase` - Purchase merchandise
+- **GET** `/point/clubs/`
+- **Expected:**  
+  200 OK, array of clubs
 
-### Participant
+---
 
-- `GET /api/participant/registrations` - My registrations
-- `PUT /api/participant/registrations/:id/cancel` - Cancel registration
-- `GET /api/participant/organizers` - List organizers
-- `POST /api/participant/follow/:organizerId` - Follow organizer
-- `DELETE /api/participant/follow/:organizerId` - Unfollow
+## Organizer Analytics
 
-### Organizer
+### 18. Get Analytics
 
-- `GET /api/organizer/events` - My events
-- `POST /api/organizer/events` - Create event
-- `PUT /api/organizer/events/:id` - Update event
-- `DELETE /api/organizer/events/:id` - Delete event
-- `GET /api/organizer/events/:id/participants` - Event participants
-- `POST /api/organizer/events/:id/attendance/:ticketId` - Mark attendance
-- `GET /api/organizer/events/:id/analytics` - Event analytics
+- **GET** `/point/organizer-analytics/`
+- **Header:**  
+  `Authorization: Bearer <organizerToken>`
+- **Expected:**  
+  200 OK, analytics and summary
 
-### Admin
+### 19. Export Participants CSV
 
-- `GET /api/admin/users` - All users
-- `GET /api/admin/events` - All events
-- `GET /api/admin/stats` - Platform statistics
-- `PUT /api/admin/organizers/:id/status` - Approve organizer
-- `DELETE /api/admin/organizers/:id` - Delete organizer
+- **GET** `/point/organizer-analytics/export/:eventId`
+- **Header:**  
+  `Authorization: Bearer <organizerToken>`
+- **Expected:**  
+  200 OK, CSV file download
 
-## 🐛 Troubleshooting
+### 20. Mark Attendance
 
-**MongoDB Connection Error:**
+- **PUT** `/point/organizer-analytics/attendance/:ticketId`
+- **Header:**  
+  `Authorization: Bearer <organizerToken>`
+- **Body:**  
+  `{ "attended": true }`
+- **Expected:**  
+  200 OK, updated ticket
 
-```bash
-# Check if MongoDB is running
-# Windows:
-net start MongoDB
+---
 
-# Mac/Linux:
-sudo systemctl status mongodb
-brew services list
-```
+## Admin
 
-**Port Already in Use:**
+### 21. Create Organizer
 
-```bash
-# Kill process on port
-# Windows:
-netstat -ano | findstr :5000
-taskkill /PID <PID> /F
+- **POST** `/point/admin/create-organizer`
+- **Header:**  
+  `Authorization: Bearer <adminToken>`
+- **Body:**  
+  `{ "firstname": "Org", "lastname": "One", "email": "org1@example.com" }`
+- **Expected:**  
+  200 OK, organizer object, credentials email sent
 
-# Mac/Linux:
-lsof -ti:5000 | xargs kill -9
-```
+### 22. Password Reset (Organizer)
 
-## 📝 Assignment Requirements
+- **POST** `/point/password/request-reset`
+- **Body:**  
+  `{ "email": "org1@example.com" }`
+- **Expected:**  
+  200 OK, request sent
 
-This project fulfills all DASS Assignment 1 requirements:
+### 23. Admin View/Reset Passwords
 
-- ✅ **Participant Features (40 marks)**: Complete browsing, registration, and management
-- ✅ **Organizer Features (20 marks)**: Event creation, management, and analytics
-- ✅ **Admin Features (10 marks)**: Platform oversight and user management
-- ✅ **API Design**: RESTful endpoints with proper authentication
-- ✅ **Database Design**: Efficient MongoDB schema with relationships
-- ✅ **Frontend**: React SPA with routing and state management
+- **GET** `/point/password/requests`  
+  **POST** `/point/password/reset`  
+  **POST** `/point/password/reject`
+- **Header:**  
+  `Authorization: Bearer <adminToken>`
+- **Expected:**  
+  200 OK, request list or reset confirmation
 
-## 📄 License
+---
 
-This project is created for academic purposes as part of DASS course assignment at IIIT Hyderabad.
+## Security & Validation
+
+- **Test duplicate registration:** Should return error
+- **Test registration after deadline/limit:** Should return error
+- **Test IIIT email enforcement:** Only `@iiit.ac.in` for IIIT participants
+- **Test token expiry/refresh:** Expired tokens should be rejected, refresh should work
+- **Test logout:** Blacklisted tokens should be rejected
+
+---
+
+**Test all endpoints with valid and invalid data.**  
+**Expected output:** Correct status codes, error messages, and data as described above.  
+If all pass, backend is ready for frontend integration!
