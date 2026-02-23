@@ -38,11 +38,11 @@ export const getDashboard = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 // Update participant profile (only allowed fields)
 export const updateProfile = async (req, res) => {
   try {
     const participantId = req.user._id;
+
     const {
       firstname,
       lastname,
@@ -51,20 +51,57 @@ export const updateProfile = async (req, res) => {
       interests,
       followedClubs,
     } = req.body;
+
+    // Fetch current participant to check type
+    const currentParticipant = await user.findById(participantId);
+
     const updates = {};
-    if (firstname) updates.firstname = firstname;
-    if (lastname) updates.lastname = lastname;
-    if (contactNumber) updates.contactNumber = contactNumber;
-    if (college) updates.college = college;
-    if (interests) updates.interests = interests;
-    if (followedClubs) updates.followedClubs = followedClubs;
-    const participant = await user.findByIdAndUpdate(participantId, updates, {
-      new: true,
+
+    // Use !== undefined so empty values can still be updated
+    if (firstname !== undefined) updates.firstname = firstname;
+    if (lastname !== undefined) updates.lastname = lastname;
+    if (contactNumber !== undefined) updates.contactNumber = contactNumber;
+    // Lock college to "IIITH" for IIIT participants
+    if (currentParticipant?.participantType === "iiit") {
+      updates.college = "IIITH";
+    } else if (college !== undefined) {
+      updates.college = college;
+    }
+    if (interests !== undefined) updates.interests = interests;
+    if (followedClubs !== undefined) updates.followedClubs = followedClubs;
+
+    const participant = await user.findByIdAndUpdate(
+      participantId,
+      updates,
+      { new: true }
+    );
+
+    // Safety check
+    if (!participant) {
+      return res.status(404).json({
+        success: false,
+        error: "Participant not found",
+      });
+    }
+
+    // Remove password before sending response
+    const { password, ...safeUser } = participant._doc;
+
+    // ✅ Correct response format for frontend
+    return res.json({
+      success: true,
+      message: "Profile updated",
+      data: {
+        participant: safeUser,
+      },
     });
-    const { password: _, ...safeUser } = participant._doc;
-    res.json({ message: "Profile updated", participant: safeUser });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Profile Update Error:", err);
+
+    return res.status(500).json({
+      success: false,
+      error: err.message || "Internal server error",
+    });
   }
 };
 

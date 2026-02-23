@@ -1,0 +1,14 @@
+ambigous
+1.system generate password and email for organizers not given by admin person,
+
+
+
+1.show participant type in profile(non editable)
+2.if user if IIIT then the clg name field should fixed by name IIITH,no acces to change 
+3. participant password change not working
+4.in many pages of the website the font colour and the background colour are same so ,cahnges colours 
+5.also when some participant registers for an event ,in the organizer can choose to accept or reject the registration from organizer portal event page and after accepting only  ticket mail is sent .
+6. organizer can mark attendance of a participant for an event upon providing ticket number for that event
+7. the user must be logged in over multiple days and reopens of browser until they choose to logout (store the jwt in the local storage and remove refresh token from backend and use jwt for authentication)
+8. deadlines also must have time along with date
+9. dynamic form builder for events (build form on organizer side, fill form on participant side for registration to event, organizer can see responses) (allowed custom fields: text, textarea, dropdown, number, checkbox, radio, file upload) for collecting more info about participant

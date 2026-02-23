@@ -1,0 +1,127 @@
+/* ================================
+   FULL ONBOARDING PAGE STYLES
+================================ */
+
+.onboarding-page {
+  min-height: 100vh;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.onboarding-card {
+  background: #f5f5f5;
+  padding: 40px;
+  max-width: 800px;
+  width: 90%;
+  border-radius: 14px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.onboarding-card h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 28px;
+  color: #222;
+}
+
+/* ================================
+   INTEREST GRID
+================================ */
+
+.interest-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.interest-chip {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #eaeaea;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.interest-chip:hover {
+  transform: translateY(-2px);
+}
+
+/* ACTIVE SELECTED STYLE */
+
+.interest-chip.active {
+  background: linear-gradient(135deg, #7bffbd, #6a5cff);
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 6px 14px rgba(106, 92, 255, 0.4);
+}
+
+/* ================================
+   SELECTED PILLS
+================================ */
+
+.selected-section {
+  margin-top: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.selected-label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.selected-pill {
+  background: #ddd;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+
+.onboarding-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.primary-btn {
+  background: #ff4fa3;
+  border: none;
+  padding: 12px 24px;
+  color: #fff;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.primary-btn:hover {
+  background: #ff2c90;
+}
+
+.skip-btn {
+  background: transparent;
+  border: 2px solid #aaa;
+  padding: 12px 24px;
+  color: #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.skip-btn:hover {
+  background: #eee;
+}

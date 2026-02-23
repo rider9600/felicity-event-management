@@ -4,15 +4,28 @@ import Event from "../models/event.js";
 export const publishEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findByIdAndUpdate(
-      id,
-      { status: "published" },
-      { new: true },
-    );
-    if (!event) return res.status(404).json({ msg: "Event not found" });
-    res.json({ msg: "Event published", event });
+
+    const event = await Event.findById(id);
+    if (!event)
+      return res.status(404).json({ success: false, error: "Event not found" });
+
+    if (event.status !== "draft") {
+      return res.status(400).json({
+        success: false,
+        error: "Only draft events can be published",
+      });
+    }
+
+    event.status = "published";
+    await event.save();
+
+    res.json({
+      success: true,
+      message: "Event published",
+      event,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -20,15 +33,28 @@ export const publishEvent = async (req, res) => {
 export const closeEventRegistration = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findByIdAndUpdate(
-      id,
-      { status: "closed" },
-      { new: true },
-    );
-    if (!event) return res.status(404).json({ msg: "Event not found" });
-    res.json({ msg: "Event registration closed", event });
+
+    const event = await Event.findById(id);
+    if (!event)
+      return res.status(404).json({ success: false, error: "Event not found" });
+
+    if (event.status === "completed") {
+      return res.status(400).json({
+        success: false,
+        error: "Completed events cannot be closed",
+      });
+    }
+
+    event.status = "closed";
+    await event.save();
+
+    res.json({
+      success: true,
+      message: "Event registration closed",
+      event,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -36,14 +62,27 @@ export const closeEventRegistration = async (req, res) => {
 export const markEventCompleted = async (req, res) => {
   try {
     const { id } = req.params;
-    const event = await Event.findByIdAndUpdate(
-      id,
-      { status: "completed" },
-      { new: true },
-    );
-    if (!event) return res.status(404).json({ msg: "Event not found" });
-    res.json({ msg: "Event marked as completed", event });
+
+    const event = await Event.findById(id);
+    if (!event)
+      return res.status(404).json({ success: false, error: "Event not found" });
+
+    if (event.status !== "ongoing") {
+      return res.status(400).json({
+        success: false,
+        error: "Only ongoing events can be completed",
+      });
+    }
+
+    event.status = "completed";
+    await event.save();
+
+    res.json({
+      success: true,
+      message: "Event marked as completed",
+      event,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };

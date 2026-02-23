@@ -1,0 +1,50 @@
+/* ============================================
+   CARD - NEO-BRUTALISM STYLE
+   ============================================ */
+
+.card {
+  border: var(--border-medium) solid #000;
+  padding: 0;
+  margin: var(--space-4) 0;
+  background-color: var(--off-white);
+  box-shadow: var(--shadow-large);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--hot-pink),
+    var(--neon-cyan),
+    var(--neon-yellow)
+  );
+}
+
+.card-title {
+  margin: 0;
+  padding: var(--space-4);
+  color: #000;
+  font-size: var(--text-xl);
+  font-family: var(--font-chunk);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: var(--border-thin) solid #000;
+}
+
+.card-content {
+  color: #333;
+  padding: var(--space-4);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-pink);
+  transform: translateY(-4px);
+}

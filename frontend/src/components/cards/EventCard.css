@@ -1,0 +1,169 @@
+/* ============================================
+   EVENT CARD - NEO-BRUTALISM STYLE
+   ============================================ */
+
+.event-card {
+  position: relative;
+  width: 100%;
+  max-width: 24rem;
+  margin: 0 auto;
+  cursor: pointer;
+  animation: slide-up 0.5s var(--ease-standard) forwards;
+}
+
+/* Shadow layer */
+.event-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  translate: 0.5rem 0.5rem;
+  background-color: #000;
+  border-radius: var(--radius-md);
+  transition: translate var(--transition-normal);
+  z-index: -1;
+}
+
+.event-card:hover::before {
+  translate: 0.75rem 0.75rem;
+}
+
+/* Main card body */
+.event-card-body {
+  position: relative;
+  background-color: var(--beige);
+  border: var(--border-medium) solid #000;
+  border-radius: var(--radius-md);
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-normal);
+}
+
+.event-card:hover .event-card-body {
+  transform: translateY(-4px);
+}
+
+/* Card header */
+.event-card__header {
+  background-color: var(--neon-cyan);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-medium) solid #000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.event-card__title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.event-card__title {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-chunk);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.event-card__badges {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.event-card__description {
+  color: #333;
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  font-family: var(--font-dm-sans);
+}
+
+/* Card content/details */
+.event-card__details {
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex-grow: 1;
+  position: relative;
+  background-color: var(--off-white);
+}
+
+/* Cardboard texture overlay */
+.event-card__details::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: url("https://www.transparenttextures.com/patterns/cardboard-flat.png");
+  pointer-events: none;
+}
+
+.event-card__detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+  padding: var(--space-2) 0;
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+}
+
+.event-card__detail:last-child {
+  border-bottom: none;
+}
+
+.event-card__detail .label {
+  font-weight: 600;
+  color: #000;
+  font-family: var(--font-oswald);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Card actions */
+.event-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  padding: var(--space-4);
+  background-color: var(--vintage-paper);
+  border-top: var(--border-medium) solid #000;
+}
+
+/* Perforated bottom edge effect */
+.event-card__perforation {
+  position: relative;
+  height: 1rem;
+  width: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    #000 8px,
+    #000 10px
+  );
+  opacity: 0.3;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (min-width: 768px) {
+  .event-card::before {
+    translate: 0.75rem 0.75rem;
+  }
+
+  .event-card:hover::before {
+    translate: 1rem 1rem;
+  }
+}

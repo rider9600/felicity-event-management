@@ -1,0 +1,35 @@
+/* Login Page Styles */
+
+.login-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.submit-button {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.signup-section {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.signup-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,136 @@
+/* ===========================================
+   DASHBOARD CARD - NEO-BRUTALISM STYLE
+   =========================================== */
+
+.dashboard-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--white);
+  border: var(--border-bold);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6);
+  transition: var(--transition-base);
+}
+
+/* Shadow layer for neo-brutalism depth */
+.dashboard-card::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: -8px;
+  bottom: -8px;
+  background: var(--black);
+  z-index: -1;
+  transition: var(--transition-base);
+}
+
+.dashboard-card--clickable {
+  cursor: pointer;
+}
+
+.dashboard-card--clickable:hover {
+  transform: translate(-4px, -4px);
+}
+
+.dashboard-card--clickable:hover::before {
+  top: 12px;
+  left: 12px;
+}
+
+/* Variant styles - colored top border */
+.dashboard-card--primary {
+  border-top: 6px solid var(--neon-cyan);
+}
+
+.dashboard-card--success {
+  border-top: 6px solid var(--neon-green);
+}
+
+.dashboard-card--warning {
+  border-top: 6px solid var(--cream);
+}
+
+.dashboard-card--danger {
+  border-top: 6px solid var(--hot-pink);
+}
+
+.dashboard-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.dashboard-card__icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-dark);
+  border: 3px solid var(--black);
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.dashboard-card__content {
+  flex: 1;
+}
+
+.dashboard-card__title {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-family: var(--font-chunk);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-card__value-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.dashboard-card__value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--black);
+  font-family: var(--font-chunk);
+  line-height: 1;
+}
+
+.dashboard-card__trend {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-family: var(--font-chunk);
+  padding: var(--space-1) var(--space-2);
+  border: 2px solid var(--black);
+}
+
+.dashboard-card__trend--up {
+  background: var(--neon-green);
+  color: var(--black);
+}
+
+.dashboard-card__trend--down {
+  background: var(--hot-pink);
+  color: var(--white);
+}
+
+.dashboard-card__description {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.dashboard-card__body {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 3px dashed var(--black);
+}

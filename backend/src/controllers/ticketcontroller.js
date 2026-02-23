@@ -4,7 +4,9 @@ import Ticket from "../models/ticket.js";
 export const getMyTickets = async (req, res) => {
   try {
     const participantId = req.user._id;
-    const tickets = await Ticket.find({ participantId });
+    const tickets = await Ticket.find({ participantId })
+      .populate("eventId", "eventName eventType eventStartDate eventEndDate eventDescription venue registrationFee")
+      .sort({ createdAt: -1 });
     res.json(tickets);
   } catch (err) {
     res.status(500).json({ error: err.message });

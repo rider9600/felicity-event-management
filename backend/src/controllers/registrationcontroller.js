@@ -46,14 +46,14 @@ export const registerNormalEvent = async (req, res) => {
     }
 
     // Validate form data against custom form
-    if (event.customForm && formData) 
-    {
-      const requiredFields = event.customForm.fields?.filter((field) => field.required) || [];
-      for(const field of requiredFields) 
-      {
-        if(!formData[field.name]) 
-        {
-          return res.status(400).json({ msg: `Required field ${field.name} is missing` });
+    if (event.customForm && formData) {
+      const requiredFields =
+        event.customForm.fields?.filter((field) => field.required) || [];
+      for (const field of requiredFields) {
+        if (!formData[field.name]) {
+          return res
+            .status(400)
+            .json({ msg: `Required field ${field.name} is missing` });
         }
       }
     }
@@ -73,6 +73,7 @@ export const registerNormalEvent = async (req, res) => {
       participantId,
       eventId,
       status: "active",
+      registrationStatus: "pending",
       qrCode,
       formData,
     });
@@ -86,21 +87,8 @@ export const registerNormalEvent = async (req, res) => {
       }),
     ]);
 
-    // Send confirmation email
-    await sendTicketEmail(
-      participant.email,
-      `Your Ticket for ${event.eventName}`,
-      {
-        ticketId,
-        eventName: event.eventName,
-        eventType: event.eventType,
-        eventDate: event.eventStartDate,
-        status: "active",
-      },
-      qrCode,
-    );
-
-    res.status(201).json({ msg: "Registered successfully", ticket });
+    // Email is deferred — will be sent when organizer accepts the registration
+    res.status(201).json({ success: true, msg: "Registration submitted. Awaiting organizer approval.", ticket });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -109,7 +97,8 @@ export const registerNormalEvent = async (req, res) => {
 // Purchase merchandise event
 export const purchaseMerchandise = async (req, res) => {
   try {
-    const { eventId, itemName, size, color, variant } = req.body;
+    const { eventId, itemName, size, color, variant, quantity: rawQty } = req.body;
+    const quantity = Math.max(1, parseInt(rawQty) || 1);
     const participantId = req.user._id;
 
     const participant = await user.findById(participantId);
@@ -143,42 +132,36 @@ export const purchaseMerchandise = async (req, res) => {
       return res.status(400).json({ msg: "Item out of stock" });
     }
 
-    // Check for duplicate purchase
-    const existingPurchase = await Ticket.findOne({
-      eventId,
-      participantId,
-      "purchaseDetails.name": itemName,
-      "purchaseDetails.size": size,
-      "purchaseDetails.color": color,
-      "purchaseDetails.variant": variant,
-    });
-
-    if (existingPurchase) {
-      return res.status(400).json({ msg: "Already purchased this item" });
+    if (item.stock < quantity) {
+      return res.status(400).json({ msg: `Only ${item.stock} in stock, cannot purchase ${quantity}` });
     }
 
-    // Check purchase limit
-    const purchases = await Ticket.countDocuments({
+    // Check purchase limit (total existing + requested quantity)
+    const existingPurchases = await Ticket.countDocuments({
       eventId,
       participantId,
       "purchaseDetails.name": itemName,
     });
 
-    if (item.purchaseLimit && purchases >= item.purchaseLimit) {
-      return res.status(400).json({ msg: "Purchase limit reached" });
+    if (item.purchaseLimit && existingPurchases + quantity > item.purchaseLimit) {
+      const remaining = item.purchaseLimit - existingPurchases;
+      if (remaining <= 0) {
+        return res.status(400).json({ msg: "Purchase limit reached for this item" });
+      }
+      return res.status(400).json({ msg: `Purchase limit is ${item.purchaseLimit}. You can buy ${remaining} more.` });
     }
 
-    // Atomic stock decrement using MongoDB $inc operator
+    // Atomic stock decrement by quantity using MongoDB $inc operator
     const updateResult = await Event.updateOne(
       {
         _id: eventId,
-        [`merchandise.items.${itemIndex}.stock`]: { $gt: 0 },
+        [`merchandise.items.${itemIndex}.stock`]: { $gte: quantity },
       },
       {
         $inc: {
-          [`merchandise.items.${itemIndex}.stock`]: -1,
+          [`merchandise.items.${itemIndex}.stock`]: -quantity,
           registrationCount: 1,
-          revenue: item.price || 0,
+          revenue: (item.price || 0) * quantity,
         },
       },
     );
@@ -186,7 +169,7 @@ export const purchaseMerchandise = async (req, res) => {
     if (updateResult.modifiedCount === 0) {
       return res
         .status(400)
-        .json({ msg: "Item out of stock or concurrent purchase" });
+        .json({ msg: "Not enough stock or concurrent purchase conflict" });
     }
 
     // Generate ticket
@@ -205,6 +188,7 @@ export const purchaseMerchandise = async (req, res) => {
         size,
         color,
         variant,
+        quantity,
         price: item.price || 0,
       },
       paymentStatus: "paid",
@@ -212,21 +196,36 @@ export const purchaseMerchandise = async (req, res) => {
 
     await ticket.save();
 
-    // Send confirmation email
-    await sendTicketEmail(
-      participant.email,
-      `Your Purchase for ${event.eventName}`,
-      {
-        ticketId,
-        eventName: event.eventName,
-        eventType: event.eventType,
-        eventDate: event.eventStartDate,
-        status: "active",
-      },
-      qrCode,
-    );
+    // Populate organizer info for email and send non-blocking
+    Event.findById(eventId).populate("organizerId").then((populatedEvent2) => {
+      sendTicketEmail(
+        participant.email,
+        `Your Purchase Ticket for ${event.eventName}`,
+        {
+          ticketId,
+          eventName: event.eventName,
+          eventType: event.eventType,
+          purchaseItem: item.name,
+          purchaseSize: item.size || "N/A",
+          purchaseColor: item.color || "N/A",
+          purchasePrice: item.price || 0,
+          eventDate: event.eventStartDate,
+          eventEndDate: event.eventEndDate,
+          venue: event.venue,
+          organizerName:
+            (populatedEvent2.organizerId?.firstname || "") +
+            " " +
+            (populatedEvent2.organizerId?.lastname || ""),
+          organizerEmail: populatedEvent2.organizerId?.email,
+          status: "active",
+          participantName: participant.firstname + " " + participant.lastname,
+          participantEmail: participant.email,
+        },
+        qrCode,
+      ).catch((err) => console.error("[Email] Purchase email failed:", err.message));
+    }).catch((err) => console.error("[Email] Populate failed:", err.message));
 
-    res.status(201).json({ msg: "Purchase successful", ticket });
+    res.status(201).json({ success: true, msg: "Purchase successful", ticket });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

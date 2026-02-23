@@ -1,0 +1,372 @@
+.organizer-event-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: var(--color-text, #f0f0f0);
+}
+
+.event-header {
+  margin-bottom: 30px;
+}
+
+.event-header h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: var(--cream, #fcec89);
+}
+
+.event-type {
+  color: var(--neon-cyan, #00ffff);
+  font-size: 16px;
+  text-transform: capitalize;
+}
+
+/* ─── TABS ─── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 28px;
+  border-bottom: 2px solid rgba(255,255,255,0.15);
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  border-bottom: 3px solid transparent;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  margin-bottom: -2px;
+  box-shadow: none;
+}
+
+.tab.active {
+  color: var(--neon-cyan, #00ffff);
+  border-bottom-color: var(--neon-cyan, #00ffff);
+}
+
+.tab:hover:not(.active) {
+  color: var(--off-white, #fffdf5);
+  background: rgba(255,255,255,0.05);
+}
+
+/* ─── TAB CONTENT ─── */
+.tab-content {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+/* ─── OVERVIEW ─── */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.overview-item {
+  padding: 14px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  border-left: 4px solid var(--neon-cyan, #00ffff);
+}
+
+.overview-item label {
+  display: block;
+  font-weight: 700;
+  color: var(--cream, #fcec89);
+  margin-bottom: 5px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.overview-item p {
+  color: rgba(255,255,255,0.85);
+  margin: 0;
+  font-size: 15px;
+}
+
+/* ─── ANALYTICS ─── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.analytics-card {
+  background: linear-gradient(135deg, #6b46c1 0%, #3b82f6 100%);
+  color: white;
+  padding: 24px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.analytics-label {
+  font-size: 13px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
+.analytics-value {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.team-stats {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+.team-stats h3 {
+  margin-bottom: 16px;
+  color: var(--cream, #fcec89);
+}
+
+.team-stats table {
+  width: 100%;
+  border-collapse: collapse;
+  color: rgba(255,255,255,0.85);
+}
+
+.team-stats th {
+  background: rgba(255,255,255,0.08);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.team-stats td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ─── PARTICIPANTS ─── */
+.participants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.participants-header h3 {
+  color: var(--cream, #fcec89);
+  font-size: 1.2rem;
+}
+
+/* ─── REGISTRATION SECTIONS ─── */
+.reg-section {
+  margin-bottom: 32px;
+}
+
+.reg-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+}
+
+.pending-title  { background: rgba(251,191,36,0.15); color: #fcd34d; }
+.accepted-title { background: rgba(34,197,94,0.15);  color: #4ade80; }
+.rejected-title { background: rgba(239,68,68,0.12);  color: #f87171; }
+
+/* ─── TABLE ─── */
+.participants-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+}
+
+.participants-table thead {
+  background: rgba(255,255,255,0.08);
+}
+
+.participants-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--cream, #fcec89);
+  border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.participants-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.participants-table tbody tr:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.attended-row {
+  background: rgba(34,197,94,0.06);
+}
+
+/* ─── STATUS BADGES ─── */
+.status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status.paid    { background: rgba(34,197,94,0.2);  color: #4ade80; }
+.status.pending { background: rgba(251,191,36,0.2); color: #fcd34d; }
+.status.refunded{ background: rgba(99,102,241,0.2); color: #a5b4fc; }
+
+/* ─── ACTION BUTTONS ─── */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 13px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  margin-right: 8px;
+  transition: opacity 0.18s;
+}
+
+.action-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.accept-btn {
+  background: #16a34a;
+  color: #fff;
+}
+.accept-btn:hover:not(:disabled) { background: #15803d; }
+
+.reject-btn {
+  background: #dc2626;
+  color: #fff;
+}
+.reject-btn:hover:not(:disabled) { background: #b91c1c; }
+
+/* ─── TICKET CODE ─── */
+.ticket-code {
+  background: rgba(0,255,255,0.08);
+  color: var(--neon-cyan, #00ffff);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.ticket-code.clickable {
+  cursor: pointer;
+  border: 1px solid rgba(0,255,255,0.25);
+}
+.ticket-code.clickable:hover {
+  background: rgba(0,255,255,0.18);
+}
+
+/* ─── ATTENDANCE TAB ─── */
+.attendance-section {
+  max-width: 680px;
+}
+
+.attendance-heading {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--cream, #fcec89);
+  margin-bottom: 8px;
+}
+
+.attendance-desc {
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.attendance-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ticket-number-input {
+  flex: 1;
+  min-width: 240px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.ticket-number-input::placeholder { color: rgba(255,255,255,0.4); }
+.ticket-number-input:focus { border-color: var(--neon-cyan, #00ffff); }
+
+.mark-btn {
+  padding: 10px 22px;
+  background: var(--neon-cyan, #00ffff);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.18s;
+  white-space: nowrap;
+}
+
+.mark-btn:hover:not(:disabled) { opacity: 0.85; }
+.mark-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.attendance-feedback {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.attendance-feedback.success {
+  background: rgba(34,197,94,0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34,197,94,0.3);
+}
+
+.attendance-feedback.error {
+  background: rgba(239,68,68,0.12);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+.attendance-list {
+  margin-top: 28px;
+}
+
+.attendance-list h4 {
+  color: var(--cream, #fcec89);
+  margin-bottom: 12px;
+}
+
+.no-data {
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  padding: 28px;
+  font-size: 14px;
+}

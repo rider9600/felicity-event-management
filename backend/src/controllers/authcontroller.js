@@ -16,8 +16,14 @@ export const register = async (req, res) => {
     const hashedpassword = await bcrypt.hash(password, 10);
     const role = "participant";
 
-    if (participantType === "iiit" && !email.endsWith("@iiit.ac.in")) {
-      return res.status(400).json({ msg: "Invalid IIIT email" });
+    if (
+      participantType === "iiit" &&
+      !email.endsWith("@students.iiit.ac.in") &&
+      !email.endsWith("@research.iiit.ac.in")
+    ) {
+      return res.status(400).json({
+        msg: "IIIT participants must use @students.iiit.ac.in or @research.iiit.ac.in email",
+      });
     }
 
     const newuser = await user.create({
@@ -101,23 +107,38 @@ export const refreshToken = (req, res) => {
     res.status(401).json({ msg: "Invalid or expired refresh token" });
   }
 };
-
 // Logout and blacklist token
 export const logout = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(400).json({ msg: "No token provided" });
+    // Expect Authorization: Bearer <token>
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(400).json({
+        success: false,
+        error: "No token provided",
+      });
     }
 
-    // Add token to blacklist (simple in-memory approach)
+    const token = authHeader.split(" ")[1];
+
+    // Initialize blacklist if not exists
     if (!global.tokenBlacklist) {
       global.tokenBlacklist = new Set();
     }
+
     global.tokenBlacklist.add(token);
 
-    res.json({ msg: "Logged out successfully" });
+    return res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Logout Error:", err);
+
+    return res.status(500).json({
+      success: false,
+      error: err.message || "Internal server error",
+    });
   }
 };

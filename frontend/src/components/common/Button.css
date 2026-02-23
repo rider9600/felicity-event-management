@@ -1,0 +1,112 @@
+/* ============================================
+   BUTTON - NEO-BRUTALISM STYLE
+   ============================================ */
+
+.btn {
+  border: var(--border-medium) solid #000;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-chunk);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-small);
+  position: relative;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* Variants */
+.btn--primary {
+  background-color: var(--hot-pink);
+  color: #000;
+}
+.btn--primary:hover {
+  background-color: #ff6b8a;
+  box-shadow: 6px 6px 0 var(--hot-pink);
+}
+
+.btn--secondary {
+  background-color: var(--vintage-paper);
+  color: #000;
+}
+.btn--secondary:hover {
+  background-color: var(--cream);
+}
+
+.btn--success {
+  background-color: var(--neon-cyan);
+  color: #000;
+}
+.btn--success:hover {
+  background-color: #5fffff;
+  box-shadow: 6px 6px 0 var(--neon-cyan);
+}
+
+.btn--danger {
+  background-color: #ff4757;
+  color: #fff;
+}
+.btn--danger:hover {
+  background-color: #ff6b7a;
+  box-shadow: 6px 6px 0 #ff4757;
+}
+
+.btn--outline {
+  background-color: transparent;
+  color: var(--off-white);
+  border-color: var(--off-white);
+}
+.btn--outline:hover {
+  background-color: var(--off-white);
+  color: #000;
+}
+
+.btn--warning {
+  background-color: var(--neon-yellow);
+  color: #000;
+}
+.btn--warning:hover {
+  box-shadow: 6px 6px 0 var(--neon-yellow);
+}
+
+/* Sizes */
+.btn--small {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  border-width: 2px;
+  box-shadow: 2px 2px 0 #000;
+}
+
+.btn--medium {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.btn--large {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-lg);
+  box-shadow: var(--shadow-medium);
+}
+
+/* States */
+.btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: 2px 2px 0 #000 !important;
+}
