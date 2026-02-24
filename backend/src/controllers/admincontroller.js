@@ -1,5 +1,6 @@
 import user from "../models/user.js";
 import Event from "../models/event.js";
+import Ticket from "../models/ticket.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -132,8 +133,15 @@ export const deleteOrganizer = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Delete all events belonging to this organizer
-    await Event.deleteMany({ organizerId: id });
+    // Find all events belonging to this organizer
+    const events = await Event.find({ organizerId: id }).select("_id");
+    const eventIds = events.map((e) => e._id);
+
+    // Delete all tickets linked to those events (to keep participant dashboards clean)
+    if (eventIds.length > 0) {
+      await Ticket.deleteMany({ eventId: { $in: eventIds } });
+      await Event.deleteMany({ _id: { $in: eventIds } });
+    }
 
     // Delete the organizer account itself
     await user.findByIdAndDelete(id);

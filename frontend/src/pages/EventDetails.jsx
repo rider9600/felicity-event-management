@@ -50,9 +50,30 @@ const EventDetails = () => {
       }
     } catch (error) {
       console.error("Failed to load event details:", error);
-    } finally {
+      } finally {
       setLoading(false);
     }
+  };
+
+  const customFields = event?.eventType === "normal" && event?.customForm?.fields
+    ? event.customForm.fields
+    : [];
+
+  const handleCustomFieldChange = (field, rawValue) => {
+    const key =
+      (field.name || field.label || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, "_") || field.name || field.label;
+
+    setRegistrationData((prev) => ({
+      ...prev,
+      formData: {
+        ...prev.formData,
+        [key]: rawValue,
+      },
+    }));
   };
 
   const handleRegistration = async () => {
@@ -690,8 +711,177 @@ const EventDetails = () => {
             </div>
           )}
 
-          {/* Merchandise item selector */}
-          {event.eventType === "merchandise" &&
+            {/* Custom registration fields for normal events */}
+            {event.eventType === "normal" &&
+              customFields.length > 0 &&
+              !registrationResult?.success && (
+                <div
+                  className="form-group"
+                  style={{
+                    marginBottom: "16px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                  }}
+                >
+                  <h4 style={{ margin: 0 }}>Additional Details</h4>
+                  {customFields.map((field, idx) => {
+                    const key =
+                      (field.name || field.label || `field_${idx + 1}`)
+                        .toString()
+                        .trim()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9_]+/g, "_") ||
+                      field.name ||
+                      field.label;
+                    const value = registrationData.formData[key] ?? "";
+
+                    if (field.type === "textarea") {
+                      return (
+                        <div key={key}>
+                          <label
+                            style={{
+                              display: "block",
+                              marginBottom: "6px",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {field.label}
+                            {field.required && (
+                              <span style={{ color: "#ef4444" }}> *</span>
+                            )}
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={value}
+                            onChange={(e) =>
+                              handleCustomFieldChange(field, e.target.value)
+                            }
+                            style={{
+                              width: "100%",
+                              padding: "8px 10px",
+                              borderRadius: "8px",
+                              border:
+                                "1px solid var(--border-color, #374151)",
+                              background: "var(--bg-elevated, #020617)",
+                              color: "#e5e7eb",
+                              resize: "vertical",
+                            }}
+                          />
+                        </div>
+                      );
+                    }
+
+                    if (field.type === "dropdown") {
+                      return (
+                        <div key={key}>
+                          <label
+                            style={{
+                              display: "block",
+                              marginBottom: "6px",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {field.label}
+                            {field.required && (
+                              <span style={{ color: "#ef4444" }}> *</span>
+                            )}
+                          </label>
+                          <select
+                            value={value}
+                            onChange={(e) =>
+                              handleCustomFieldChange(field, e.target.value)
+                            }
+                            style={{
+                              width: "100%",
+                              padding: "8px 10px",
+                              borderRadius: "8px",
+                              border:
+                                "1px solid var(--border-color, #374151)",
+                              background: "var(--bg-elevated, #020617)",
+                              color: "#e5e7eb",
+                            }}
+                          >
+                            <option value="">Select an option</option>
+                            {(field.options || []).map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      );
+                    }
+
+                    if (field.type === "checkbox") {
+                      const checked = Boolean(value);
+                      return (
+                        <label
+                          key={key}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            fontSize: "0.9rem",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) =>
+                              handleCustomFieldChange(field, e.target.checked)
+                            }
+                          />
+                          <span>
+                            {field.label}
+                            {field.required && (
+                              <span style={{ color: "#ef4444" }}> *</span>
+                            )}
+                          </span>
+                        </label>
+                      );
+                    }
+
+                    // Default: simple text/number/file as text input
+                    return (
+                      <div key={key}>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "6px",
+                            fontWeight: 500,
+                          }}
+                        >
+                          {field.label}
+                          {field.required && (
+                            <span style={{ color: "#ef4444" }}> *</span>
+                          )}
+                        </label>
+                        <input
+                          type={field.type === "number" ? "number" : "text"}
+                          value={value}
+                          onChange={(e) =>
+                            handleCustomFieldChange(field, e.target.value)
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            border:
+                              "1px solid var(--border-color, #374151)",
+                            background: "var(--bg-elevated, #020617)",
+                            color: "#e5e7eb",
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            {/* Merchandise item selector */}
+            {event.eventType === "merchandise" &&
             !registrationResult?.success && (
               <div className="form-group">
                 <label

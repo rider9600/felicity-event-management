@@ -226,12 +226,33 @@ const CreateEvent = () => {
       } else {
         // Attach custom form schema
         payload.customForm = {
-          fields: formFields.map(({ id, _optionsText, ...f }) => ({
-            ...f,
-            options: _optionsText
-              ? _optionsText.split(",").map((o) => o.trim()).filter(Boolean)
-              : f.options || [],
-          })),
+          fields: formFields.map(({ id, _optionsText, ...f }, index) => {
+            const baseLabel = (f.label || "").trim() || `Field ${index + 1}`;
+            let slug =
+              (f.name || "")
+                .toString()
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "_")
+                .replace(/^_+|_+$/g, "") ||
+              baseLabel
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "_")
+                .replace(/^_+|_+$/g, "") ||
+              `field_${index + 1}`;
+
+            return {
+              ...f,
+              // stable key used by registration form + backend
+              name: slug,
+              options: _optionsText
+                ? _optionsText
+                    .split(",")
+                    .map((o) => o.trim())
+                    .filter(Boolean)
+                : f.options || [],
+            };
+          }),
         };
       }
 

@@ -46,14 +46,25 @@ export const registerNormalEvent = async (req, res) => {
     }
 
     // Validate form data against custom form
-    if (event.customForm && formData) {
+    if (event.customForm && Array.isArray(event.customForm.fields)) {
       const requiredFields =
-        event.customForm.fields?.filter((field) => field.required) || [];
+        event.customForm.fields.filter((field) => field && field.required) ||
+        [];
+
       for (const field of requiredFields) {
-        if (!formData[field.name]) {
-          return res
-            .status(400)
-            .json({ msg: `Required field ${field.name} is missing` });
+        const key = (field.name || field.label || "").toString();
+        if (!key) continue;
+
+        const value = formData ? formData[key] : undefined;
+        if (
+          value === undefined ||
+          value === null ||
+          (typeof value === "string" && value.trim() === "")
+        ) {
+          const label = field.label || field.name || "field";
+          return res.status(400).json({
+            msg: `Required field "${label}" is missing`,
+          });
         }
       }
     }
