@@ -1,247 +1,285 @@
-# Felicity Platform Backend API Testing Guide
+# Felicity Event Management Platform
 
-This document provides a comprehensive checklist for testing all backend API endpoints using Postman or any API client. Each endpoint includes the method, path, required headers/body, and the expected output. Use this as your testing phase before moving to frontend integration.
-
----
-
-## Authentication
-
-### 1. Register (Participant)
-
-- **POST** `/point/auth/register`
-- **Body:**  
-  `{ "firstname": "Test", "lastname": "User", "email": "test@iiit.ac.in", "password": "test123", "participantType": "iiit" }`
-- **Expected:**  
-  200 OK, user object (no password), IIIT email required for `"iiit"` type
-
-### 2. Login
-
-- **POST** `/point/auth/login`
-- **Body:**  
-  `{ "email": "test@iiit.ac.in", "password": "test123" }`
-- **Expected:**  
-  200 OK, `{ token, refreshToken, user }`
-
-### 3. Refresh Token
-
-- **POST** `/point/auth/refresh`
-- **Body:**  
-  `{ "refreshToken": "<refreshToken>" }`
-- **Expected:**  
-  200 OK, `{ token }`
-
-### 4. Logout
-
-- **POST** `/point/auth/logout`
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Expected:**  
-  200 OK, `{ msg: "Logged out successfully" }`
+Full‑stack event management system for Felicity 2026 with multi‑role support (participant, organizer, admin), event creation, custom registration forms, merchandise sales, analytics, and real‑time event forums.  
+Frontend is deployed on **Vercel**, backend on **Railway** (Node + MongoDB).
 
 ---
 
-## Participant Onboarding & Profile
+## 1. Tech Stack, Libraries & Justification
 
-### 5. Complete Onboarding
+### 1.1 Frontend
 
-- **POST** `/point/participant/onboarding`
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Body:**  
-  `{ "interests": ["music", "coding"], "followedClubs": ["<clubId>"] }`
-- **Expected:**  
-  200 OK, onboarding fields updated
+- **React 19** (`react`, `react-dom`)  
+  - Chosen for component‑based UI, hooks API, and rich ecosystem.  
+  - Fits SPA requirements: dashboard, forms, and multiple role‑based views.
 
-### 6. Update Profile
+- **React Router DOM 7** (`react-router-dom`)  
+  - Client‑side routing for SPA navigation: `/login`, `/events`, `/organizer/events`, `/admin/*`, `/profile`, `/tickets`, etc.  
+  - Enables protected routes based on role (participant / organizer / admin).
 
-- **PUT** `/point/participant/profile`
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Body:**  
-  `{ "firstname": "New", "interests": ["sports"] }`
-- **Expected:**  
-  200 OK, updated user object
+- **Vite** (`vite`, `@vitejs/plugin-react`)  
+  - Fast dev server + build tool with great DX and small production bundles.  
+  - Native ES modules and sensible defaults; easy environment variable support (`VITE_API_BASE_URL`).
 
-### 7. Get Dashboard
+- **Axios** (`axios`)  
+  - Used where a higher‑level HTTP client is convenient (e.g., shared interceptors for auth token).  
+  - Simplifies error handling compared to raw `fetch` in some utility modules.
 
-- **GET** `/point/participant/dashboard`
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Expected:**  
-  200 OK, `{ upcoming, normalHistory, merchandiseHistory, completed, cancelledRejected }`
+- **Socket.io Client** (`socket.io-client`)  
+  - Real‑time WebSocket communication for the event forum.  
+  - Automatically handles reconnection and fallbacks, reducing custom socket boilerplate.
 
-### 8. Get Recommended Events
+- **Plain CSS + Design System**  
+  - `frontend/src/styles/designSystem.css` uses CSS variables for blue/black/white theme, dark mode, spacing, and typography tokens.  
+  - Justification: lightweight, no heavy UI framework; easier to match custom design spec.
 
-- **GET** `/point/participant/recommended-events`
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Expected:**  
-  200 OK, array of events sorted by preferences
+### 1.2 Backend
 
----
+- **Node.js + Express 5** (`express`)  
+  - Minimal, flexible HTTP server.  
+  - Router structure (`authroutes`, `eventroutes`, `adminroutes`, etc.) keeps code modular.
 
-## Event Management
+- **MongoDB + Mongoose 9** (`mongoose`)  
+  - Document DB fits event/ticket/registration domain with nested structures (merchandise items, custom forms).  
+  - Mongoose schemas enforce structure and validation for `user`, `event`, `ticket`, etc.
 
-### 9. Create Event (Organizer)
+- **JWT Auth** (`jsonwebtoken`)  
+  - Stateless authentication with access + refresh tokens.  
+  - Works well with SPA + multiple roles (participant / organizer / admin).
 
-- **POST** `/point/events/`
-- **Header:**  
-  `Authorization: Bearer <organizerToken>`
-- **Body:**  
-  `{ "eventName": "Hackathon", ... }`
-- **Expected:**  
-  201 Created, event object
+- **Password Hashing** (`bcrypt`)  
+  - Secure hashing for user/organizer/admin passwords.
 
-### 10. Edit Event (Organizer/Admin)
+- **CORS** (`cors`)  
+  - Explicitly configured to allow localhost dev and Vercel origin while keeping other origins blocked.
 
-- **PUT** `/point/events/:id` (organizer)  
-  `/point/admin/event/:id` (admin)
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Body:**  
-  `{ "eventDescription": "Updated desc" }`
-- **Expected:**  
-  200 OK, updated event object
+- **Environment Management** (`dotenv`)  
+  - Reads secrets like `mongoconnection`, `secretbro`, email credentials from `.env`.  
+  - Clean separation between code and configuration.
 
-### 11. Delete Event (Organizer/Admin)
+- **File Uploads** (`multer`)  
+  - Handles payment proof uploads for merchandise tickets / registrations.
 
-- **DELETE** `/point/events/:id` (organizer)  
-  `/point/admin/event/:id` (admin)
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Expected:**  
-  200 OK, `{ message: "Event deleted" }`
+- **Email Sending** (`nodemailer`)  
+  - Sends ticket / reset emails (purchase confirmations, admin password workflows).
 
-### 12. Search Events
+- **QR Code Generation** (`qrcode`)  
+  - Generates QR codes for tickets used in attendance scanning; improves on plain numeric IDs.
 
-- **GET** `/point/events/search?query=Hackathon&eventType=normal`
-- **Expected:**  
-  200 OK, array of events
+- **Socket.io Server** (`socket.io`)  
+  - Real‑time event forum updates and potential future live notifications.
 
-### 13. Trending Events
+- **node-fetch**  
+  - Used for calling external services (e.g., webhook / analytics integrations) when needed.
 
-- **GET** `/point/events/trending`
-- **Expected:**  
-  200 OK, array of trending events
+### 1.3 Infrastructure
+
+- **Railway (Backend)**  
+  - Managed Node hosting with environment variables and MongoDB compatibility.  
+  - Simplifies deployment (Git‑driven deploys, SSL, logs).
+
+- **Vercel (Frontend)**  
+  - Optimized for React/Vite SPAs and automatic deployments from GitHub.  
+  - Easy environment variable configuration for `VITE_API_BASE_URL`.
 
 ---
 
-## Registration & Tickets
+## 2. Advanced Features by Tier
 
-### 14. Register for Event
+> The grouping below assumes the course’s Tier A/B/C rubric. Names may differ, but each item explicitly states the design and implementation approach.
 
-- **POST** `/point/registration/normal`
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Body:**  
-  `{ "eventId": "<eventId>", "formData": { ... } }`
-- **Expected:**  
-  201 Created, ticket object, email sent
+### 2.1 Tier A – Core Event & User Flows
 
-### 15. Purchase Merchandise
+- **Multi‑Role Auth (Participant / Organizer / Admin)**  
+  - *Design:* Single `user` collection with `role` field; backend middleware (`protect`, role checks) gates routes.  
+  - *Implementation:* JWT issued in `authcontroller.login`; front‑end `AuthContext` stores `token`, `refreshToken`, `user` and wraps routes in `ProtectedRoute` components.  
+  - *Decision:* Prefer role flag over separate collections for simpler login and session handling.
 
-- **POST** `/point/registration/merchandise`
-- **Header:**  
-  `Authorization: Bearer <token>`
-- **Body:**  
-  `{ "eventId": "<eventId>", "itemName": "...", ... }`
-- **Expected:**  
-  201 Created, ticket object, email sent
+- **Event Creation & Editing Workflow**  
+  - *Flow:* `Create (draft) → Define form / merchandise → Publish → Ongoing → Completed/Closed` as per spec 10.4.  
+  - *Backend:* `eventcontroller.updateEvent` enforces status‑based rules (free edits in draft, limited edits in published, only status changes when ongoing/completed).  
+  - *Frontend:* `CreateEvent.jsx` shows/locks fields and status options based on current event state.
 
----
+- **Custom Registration Form Builder**  
+  - *Design:* Organizer can add fields (text/number/textarea/dropdown/checkbox/file) per event. Schema stored on `event.customForm`.  
+  - *Implementation:*  
+    - `CreateEvent.jsx` manages `formFields` with types, label, required and options; generates stable `name` slug per field.  
+    - `eventcontroller.updateEventForm` persists `customForm` if not locked.  
+    - `registrationcontroller.registerNormalEvent` validates `formData` against required fields.  
+  - *Decision:* Store form schema on event instead of global registry so each event can customize independently.
 
-## Clubs
+- **Merchandise Events & Tickets**  
+  - *Design:* Separate event type `merchandise` with items (size, color, variant, stock, purchaseLimit).  
+  - *Implementation:*  
+    - `event.merchandise.items` array in schema.  
+    - `registrationcontroller.purchaseMerchandise` does atomic stock decrement and purchase limit enforcement.  
+    - Frontend `EventDetails.jsx` presents merchandise variants and quantity selector; uses tickets API for purchase.
 
-### 16. Create Club
+- **Participation Dashboard & History**  
+  - *Backend:* `participantcontroller.getDashboard` categorizes tickets into upcoming, normalHistory, merchandiseHistory, completed, cancelled/rejected.  
+  - *Frontend:* Dashboard page renders each category section for clear audit of user participation.
 
-- **POST** `/point/clubs/`
-- **Header:**  
-  `Authorization: Bearer <adminToken>`
-- **Body:**  
-  `{ "name": "Music Club", ... }`
-- **Expected:**  
-  201 Created, club object
+### 2.2 Tier B – Analytics, Organizer Tools, Real‑Time
 
-### 17. Get Clubs
+- **Organizer Dashboard & Analytics**  
+  - *Design:* Organizers need quick insight into registrations, revenue, and attendance.  
+  - *Implementation:* `organizeranalyticscontroller` aggregates over events/tickets for counts, charts; `OrganizerAnalytics.jsx` visualizes metrics.  
+  - *Decision:* Pre‑compute at query time using Mongo aggregations to avoid premature background jobs complexity.
 
-- **GET** `/point/clubs/`
-- **Expected:**  
-  200 OK, array of clubs
+- **Admin Organizer Management (Clubs/Organizers)**  
+  - *Features:*  
+    - Admin can create organizers (`createorganizer`) with auto‑generated email + password.  
+    - Archive / delete organizers; delete also cascades events + tickets (`deleteOrganizer`).  
+    - Manage clubs and link events to clubs.  
+  - *Frontend:* `ManageClubs.jsx` presents tabs for clubs/organizers with archive/activate/delete actions and displays generated credentials once.
 
----
+- **Event Detail (Organizer View) & CSV Export**  
+  - *Backend:* `eventcontroller.getEventParticipants` and `exportEventParticipantsCSV` return list/export for an event.  
+  - *Frontend:* `OrganizerEventDetail.jsx` has tabs for overview, analytics, participants, attendance, and inline CSV export.  
+  - *Decision:* Keep CSV generation server‑side to avoid leaking raw DB structure to frontend.
 
-## Organizer Analytics
+- **Real‑Time Event Forum**  
+  - *Design:* Per‑event discussion threads, with announcements, questions, replies, pinning, reactions.  
+  - *Implementation:*  
+    - Server: `forumcontroller` + Socket.io broadcasting (`join_forum`, `newForumMessage`, `forumMessageUpdated`).  
+    - Client: `useForumSocket` and `Forum.jsx` subscribe to updates; `MessageList` / `MessageItem` render thread with pin/delete/react actions.  
+  - *Decision:* Socket.io chosen over raw WebSocket for simpler reconnection logic and room management.
 
-### 18. Get Analytics
+- **Discord Webhook for Organizers**  
+  - *Design:* Optional auto‑posting of new events to organizer’s Discord channel.  
+  - *Implementation:* Organizer profile includes `discordWebhook`; when `createEvent` succeeds, backend posts event summary to that webhook asynchronously.  
+  - *Decision:* Keep webhook URL on organizer profile, not per event, to allow plug‑and‑play integration.
 
-- **GET** `/point/organizer-analytics/`
-- **Header:**  
-  `Authorization: Bearer <organizerToken>`
-- **Expected:**  
-  200 OK, analytics and summary
+### 2.3 Tier C – UX, Visualization, Integrations
 
-### 19. Export Participants CSV
+- **Design System + Dark/Light Theme**  
+  - *Design:* Global tokens (e.g., `--prime-primary`, `--bg-surface`, rating colors) for consistent blue/black/white theme across pages.  
+  - *Implementation:* `designSystem.css` defines light/dark palettes, transitions, typography; components use CSS variables instead of hard‑coded colors.  
+  - *Decision:* No heavy UI framework to keep bundle slim and match custom brand spec.
 
-- **GET** `/point/organizer-analytics/export/:eventId`
-- **Header:**  
-  `Authorization: Bearer <organizerToken>`
-- **Expected:**  
-  200 OK, CSV file download
+- **Calendar & ICS Export**  
+  - *Backend:* `eventcontroller.generateCalendarICS` returns `.ics` file for an event.  
+  - *Frontend:* `EventDetails.jsx` builds Google/Outlook calendar links plus ICS download.  
+  - *Decision:* ICS is generated on the fly from event details to avoid storing files.
 
-### 20. Mark Attendance
+- **Recommended Events Based on Interests & Clubs**  
+  - *Backend:* `participantcontroller.getRecommendedEvents` fetches published events and sorts them by followed clubs and interest tag matches.  
+  - *Frontend:* Used to display a personalized list; encourages engagement.
 
-- **PUT** `/point/organizer-analytics/attendance/:ticketId`
-- **Header:**  
-  `Authorization: Bearer <organizerToken>`
-- **Body:**  
-  `{ "attended": true }`
-- **Expected:**  
-  200 OK, updated ticket
-
----
-
-## Admin
-
-### 21. Create Organizer
-
-- **POST** `/point/admin/create-organizer`
-- **Header:**  
-  `Authorization: Bearer <adminToken>`
-- **Body:**  
-  `{ "firstname": "Org", "lastname": "One", "email": "org1@example.com" }`
-- **Expected:**  
-  200 OK, organizer object, credentials email sent
-
-### 22. Password Reset (Organizer)
-
-- **POST** `/point/password/request-reset`
-- **Body:**  
-  `{ "email": "org1@example.com" }`
-- **Expected:**  
-  200 OK, request sent
-
-### 23. Admin View/Reset Passwords
-
-- **GET** `/point/password/requests`  
-  **POST** `/point/password/reset`  
-  **POST** `/point/password/reject`
-- **Header:**  
-  `Authorization: Bearer <adminToken>`
-- **Expected:**  
-  200 OK, request list or reset confirmation
+- **Onboarding with Interests & Followed Clubs**  
+  - *Design:* On first login, participants pick interests and clubs/organizers; this configures recommendations and dashboard.  
+  - *Implementation:* `Onboarding.jsx` calls `/point/user/onboarding`; backend stores `interests` and `followedClubs` on `user`.  
+  - *Decision:* Store preferences directly on user document to avoid extra join collections.
 
 ---
 
-## Security & Validation
+## 3. Architecture & Design Decisions
 
-- **Test duplicate registration:** Should return error
-- **Test registration after deadline/limit:** Should return error
-- **Test IIIT email enforcement:** Only `@iiit.ac.in` for IIIT participants
-- **Test token expiry/refresh:** Expired tokens should be rejected, refresh should work
-- **Test logout:** Blacklisted tokens should be rejected
+- **RESTful modular routes:** Each domain has its own router (`authroutes`, `eventroutes`, `registrationroutes`, `preferencesroutes`, `forumroutes`, etc.) to keep concerns separated.  
+- **Role‑aware middleware:** `protect` reads JWT, attaches user; role middleware checks `user.role` to guard admin/organizer endpoints.  
+- **Token‑based SPA:** Frontend uses React Context for auth; tokens stored in `localStorage` and attached via Axios interceptor / fetch headers.  
+- **Event‑centric modeling:** `Event` is the main aggregate: custom form, merchandise, analytics, and forum are all attached to event ID.  
+- **Progressive enhancement:** Features like Discord webhook, ICS calendar, and recommended events are optional/independent; core event + registration flow works without them.
 
 ---
 
-**Test all endpoints with valid and invalid data.**  
-**Expected output:** Correct status codes, error messages, and data as described above.  
-If all pass, backend is ready for frontend integration!
+## 4. Setup & Local Development
+
+### 4.1 Prerequisites
+
+- Node.js 18+
+- MongoDB Atlas connection string (or local MongoDB)
+
+### 4.2 Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd felicity-platform
+```
+
+### 4.3 Backend Setup
+
+1. Go to backend folder:
+
+   ```bash
+   cd backend
+   npm install
+   ```
+
+2. Create `.env` in `backend/` (or reuse the one you already have). Required keys:
+
+   ```env
+   mongoconnection=<your-mongodb-connection-string>
+   secretbro=<jwt-secret>
+   admin_email=admin@system.com
+   admin_password=admin123
+   EMAIL_USER=<smtp-user>
+   EMAIL_PASS=<smtp-app-password>
+   ```
+
+3. Start backend in dev mode:
+
+   ```bash
+   npm run dev
+   ```
+
+   Backend runs on `http://localhost:5000` by default.
+
+### 4.4 Frontend Setup
+
+1. In another terminal:
+
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. Create `frontend/.env` and point it to your local backend:
+
+   ```env
+   VITE_API_BASE_URL=http://localhost:5000
+   ```
+
+3. Start the Vite dev server:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Open the app at `http://localhost:5173`.
+
+---
+
+## 5. Deployment Notes
+
+- **Backend (Railway)**  
+  - Root directory: `backend`  
+  - Build command: `npm install`  
+  - Start command: `npm start`  
+  - Environment variables: same as backend `.env`.  
+  - CORS `allowedOrigins` must include:  
+    - `http://localhost:5173` (local dev)  
+    - Your Vercel URL (e.g., `https://felicity-event-management-smoky.vercel.app`).
+
+- **Frontend (Vercel)**  
+  - Root directory: `frontend`  
+  - Build command: `npm run build`  
+  - Output directory: `dist`  
+  - Environment variable:  
+    - `VITE_API_BASE_URL=https://felicity-event-management-production.up.railway.app`
+
+---
+
+## 6. Backend API Testing (Summary)
+
+> For detailed endpoint list and sample bodies, you can test using Postman or any API client as follows.
+
+- **Auth:** `/point/auth/register`, `/point/auth/login`, `/point/auth/refresh`, `/point/auth/logout`  
+- **Participant:** `/point/participant/dashboard`, `/point/participant/recommended-events`  
+- **Events:** `/point/events`, `/point/events/search`, `/point/events/trending`, `/point/events/:id`  
+- **Registration & Tickets:** `/point/registration/register`, `/point/registration/purchase`, `/point/tickets/my`  
+- **Organizer:** `/point/events/my-events`, `/point/events/:id/participants`, `/point/events/:id/analytics`  
+- **Admin:** `/point/admin/create-organizer`, `/point/admin/organizer/:id/remove`, `/point/admin/organizer/:id`  
+- **Forum:** `/point/forum/:eventId` (CRUD for posts/messages)
+
+Use valid JWT tokens in `Authorization: Bearer <token>` for protected routes. The earlier backend‑only README content has been condensed into this summary to keep this document focused on architecture, features, and setup as required by the assignment.
