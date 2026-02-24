@@ -34,7 +34,7 @@ Frontend is deployed on **Vercel**, backend on **Railway** (Node + MongoDB).
   - Justification: lightweight, no heavy UI framework; easier to match custom design spec.
 
 ### 1.2 Backend
-
+  
 - **Node.js + Express 5** (`express`)  
   - Minimal, flexible HTTP server.  
   - Router structure (`authroutes`, `eventroutes`, `adminroutes`, etc.) keeps code modular.
