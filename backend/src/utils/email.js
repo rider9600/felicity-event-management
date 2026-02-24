@@ -31,29 +31,40 @@ export const sendTicketEmail = async (
   qrCodeDataURL,
 ) => {
   if (!emailConfigured()) {
-    console.log(`[Email] Skipping ticket email to ${to} — EMAIL_USER/EMAIL_PASS not configured.`);
+    console.log(
+      `[Email] Skipping ticket email to ${to} — EMAIL_USER/EMAIL_PASS not configured.`,
+    );
     return false;
   }
   try {
     const transporter = createTransporter();
+    const base64Data = qrCodeDataURL.replace(/^data:image\/png;base64,/, "");
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to,
       subject,
       html: `
-        <h2>Your Ticket for ${ticketDetails.eventName}</h2>
-        <p><strong>Ticket ID:</strong> ${ticketDetails.ticketId}</p>
-        <p><strong>Event:</strong> ${ticketDetails.eventName}</p>
-        <p><strong>Event Type:</strong> ${ticketDetails.eventType}</p>
-        <p><strong>Date:</strong> ${ticketDetails.eventDate}</p>
-        <p><strong>Venue:</strong> ${ticketDetails.venue || "TBD"}</p>
-        <p><strong>Participant:</strong> ${ticketDetails.participantName}</p>
-        <p><strong>Status:</strong> ${ticketDetails.status}</p>
-        ${ticketDetails.purchaseItem ? `<p><strong>Item:</strong> ${ticketDetails.purchaseItem} (${ticketDetails.purchaseSize})</p>` : ""}
-        <p>Scan the QR code below at the event:</p>
-        <img src="${qrCodeDataURL}" alt="Ticket QR Code" />
-        <p>Thank you for registering!</p>
-      `,
+    <h2>Your Ticket for ${ticketDetails.eventName}</h2>
+    <p><strong>Ticket ID:</strong> ${ticketDetails.ticketId}</p>
+    <p><strong>Event:</strong> ${ticketDetails.eventName}</p>
+    <p><strong>Event Type:</strong> ${ticketDetails.eventType}</p>
+    <p><strong>Date:</strong> ${ticketDetails.eventDate}</p>
+    <p><strong>Venue:</strong> ${ticketDetails.venue || "TBD"}</p>
+    <p><strong>Participant:</strong> ${ticketDetails.participantName}</p>
+    <p><strong>Status:</strong> ${ticketDetails.status}</p>
+    ${ticketDetails.purchaseItem ? `<p><strong>Item:</strong> ${ticketDetails.purchaseItem} (${ticketDetails.purchaseSize})</p>` : ""}
+    <p>Scan the QR code below at the event:</p>
+    <img src="cid:qrcode" alt="Ticket QR Code" />
+    <p>Thank you for registering!</p>
+  `,
+      attachments: [
+        {
+          filename: "qrcode.png",
+          content: base64Data,
+          encoding: "base64",
+          cid: "qrcode", // must match the cid in the img src
+        },
+      ],
     };
     await transporter.sendMail(mailOptions);
     console.log(`[Email] Ticket email sent to ${to}`);
@@ -67,7 +78,9 @@ export const sendTicketEmail = async (
 // Send generic email
 export const sendEmail = async (to, subject, htmlContent) => {
   if (!emailConfigured()) {
-    console.log(`[Email] Skipping email to ${to} — EMAIL_USER/EMAIL_PASS not configured.`);
+    console.log(
+      `[Email] Skipping email to ${to} — EMAIL_USER/EMAIL_PASS not configured.`,
+    );
     return false;
   }
   try {

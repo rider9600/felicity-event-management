@@ -16,6 +16,7 @@ const Analytics = () => {
   const [analyticsData, setAnalyticsData] = useState({
     overview: {},
     eventMetrics: [],
+    organizerMetrics: [],
     userMetrics: {},
     revenueData: {},
     periodData: [],
@@ -38,68 +39,24 @@ const Analytics = () => {
     try {
       const endpoint =
         user?.role === "admin"
-          ? "/point/admin/analytics"
-          : "/point/organizer/analytics";
+          ? "/point/admin-analytics"
+          : "/point/organizer-analytics";
 
       const result = await apiCall(
         `${endpoint}?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`,
       );
 
       if (result.success) {
-        setAnalyticsData(result.data);
-      } else {
-        // Mock data for demonstration
         setAnalyticsData({
-          overview: {
-            totalEvents: user?.role === "admin" ? 156 : 23,
-            totalRegistrations: user?.role === "admin" ? 4567 : 892,
-            totalRevenue: user?.role === "admin" ? 2340000 : 145000,
-            averageEventSize: user?.role === "admin" ? 29.3 : 38.8,
-            conversionRate: user?.role === "admin" ? 0.68 : 0.74,
-            popularCategory: "Technical",
-          },
-          eventMetrics: [
-            {
-              name: "Tech Fest 2026",
-              registrations: 245,
-              revenue: 147000,
-              date: "2026-02-10",
-            },
-            {
-              name: "Cultural Night",
-              registrations: 189,
-              revenue: 56700,
-              date: "2026-02-08",
-            },
-            {
-              name: "Workshop Series",
-              registrations: 156,
-              revenue: 78000,
-              date: "2026-02-05",
-            },
-            {
-              name: "Sports Meet",
-              registrations: 302,
-              revenue: 0,
-              date: "2026-02-03",
-            },
-          ],
-          userMetrics: {
-            newUsers: 234,
-            returningUsers: 1456,
-            userGrowth: 12.5,
-            topDemographic: "Students (18-22)",
-          },
-          revenueData: {
-            thisMonth: 456000,
-            lastMonth: 398000,
-            growth: 14.6,
-            breakdown: {
-              registrationFees: 340000,
-              merchandise: 116000,
-            },
-          },
+          overview: result.data.overview || {},
+          eventMetrics: result.data.eventMetrics || [],
+          organizerMetrics: result.data.organizerMetrics || [],
+          userMetrics: result.data.userMetrics || {},
+          revenueData: result.data.revenueData || {},
+          periodData: result.data.periodData || [],
         });
+      } else {
+        console.error("Analytics API failed:", result.error);
       }
     } catch (error) {
       console.error("Failed to load analytics:", error);
@@ -160,6 +117,9 @@ const Analytics = () => {
   const tabs = [
     { id: "overview", label: "Overview", icon: "📊" },
     { id: "events", label: "Events", icon: "📅" },
+    ...(user?.role === "admin"
+      ? [{ id: "organizers", label: "Organizers", icon: "🏢" }]
+      : []),
     { id: "users", label: "Users", icon: "👥" },
     { id: "revenue", label: "Revenue", icon: "💰" },
   ];

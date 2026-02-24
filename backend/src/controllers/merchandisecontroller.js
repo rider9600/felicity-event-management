@@ -2,7 +2,7 @@ import Ticket from "../models/ticket.js";
 import Event from "../models/event.js";
 import User from "../models/user.js";
 import { generateQRCode } from "../utils/qrcode.js";
-import { sendEmail } from "../utils/email.js";
+import { sendEmail, sendTicketEmail } from "../utils/email.js";
 
 // Upload payment proof for a merchandise purchase (participant)
 export const uploadPaymentProof = async (req, res) => {
@@ -42,23 +42,31 @@ export const uploadPaymentProof = async (req, res) => {
     res.json({
       success: true,
       ticket,
-      message: "Payment proof uploaded. Awaiting admin review.",
+      message: "Payment proof uploaded. Awaiting organizer review.",
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// Admin views pending merchandise payments
+// Organizer views pending merchandise payments for their events
 export const getPendingPayments = async (req, res) => {
   try {
-    // Admin only
-    if (req.user?.role !== "admin") {
-      return res.status(403).json({ success: false, error: "Admin only" });
+    // Organizer only
+    if (req.user?.role !== "organizer") {
+      return res
+        .status(403)
+        .json({ success: false, error: "Organizers only" });
     }
+
+    // Find events belonging to this organizer
+    const organizerId = req.user._id;
+    const events = await Event.find({ organizerId }).select("_id");
+    const eventIds = events.map((e) => e._id);
 
     const pendingTickets = await Ticket.find({
       paymentStatus: "pending_approval",
+      eventId: { $in: eventIds },
     })
       .populate("participantId", "firstname lastname email")
       .populate("eventId", "eventName merchandise");
@@ -69,14 +77,9 @@ export const getPendingPayments = async (req, res) => {
   }
 };
 
-// Admin approves a merchandise payment
+// Organizer approves a merchandise payment
 export const approvePayment = async (req, res) => {
   try {
-    // Admin only
-    if (req.user?.role !== "admin") {
-      return res.status(403).json({ success: false, error: "Admin only" });
-    }
-
     const { ticketId } = req.params;
 
     const ticket = await Ticket.findOne({ ticketId })
@@ -88,13 +91,24 @@ export const approvePayment = async (req, res) => {
         .json({ success: false, error: "Ticket not found" });
     }
 
+    // Ensure the current user is the organizer of this event
+    if (
+      !ticket.eventId.organizerId ||
+      String(ticket.eventId.organizerId) !== String(req.user._id)
+    ) {
+      return res.status(403).json({
+        success: false,
+        error: "You can only approve payments for your own events",
+      });
+    }
+
     if (ticket.paymentStatus !== "pending_approval") {
       return res
         .status(400)
         .json({ success: false, error: "Ticket is not pending approval" });
     }
 
-    // Decrement stock atomically
+    // Decrement stock atomically on approval
     let itemIndex = -1;
     if (ticket.eventId.merchandise?.items && ticket.purchaseDetails?.itemId) {
       itemIndex = ticket.eventId.merchandise.items.findIndex(
@@ -108,13 +122,20 @@ export const approvePayment = async (req, res) => {
       }
 
       const item = ticket.eventId.merchandise.items[itemIndex];
-      if (item.stock <= 0) {
+      const qty = ticket.purchaseDetails?.quantity || 1;
+      if (item.stock < qty) {
         return res
           .status(400)
           .json({ success: false, error: "Item is out of stock" });
       }
 
-      item.stock -= 1;
+      item.stock -= qty;
+
+      // Track analytics
+      ticket.eventId.registrationCount =
+        (ticket.eventId.registrationCount || 0) + 1;
+      ticket.eventId.revenue =
+        (ticket.eventId.revenue || 0) + (item.price || 0) * qty;
     }
 
     // Mark payment as paid
@@ -136,21 +157,28 @@ export const approvePayment = async (req, res) => {
       await ticket.eventId.save();
     }
 
-    // Send approval email
+    // Send approval email with QR ticket details
     const participant = ticket.participantId;
     const event = ticket.eventId;
     try {
-      await sendEmail({
-        to: participant.email,
-        subject: `Payment Approved for ${event.eventName}`,
-        html: `
-          <h3>Payment Approved</h3>
-          <p>Hi ${participant.firstname},</p>
-          <p>Your payment for <strong>${event.eventName}</strong> has been approved.</p>
-          <p><strong>Ticket ID:</strong> ${ticket.ticketId}</p>
-          <p>You can now access your event details and QR code in your dashboard.</p>
-        `,
-      });
+      await sendTicketEmail(
+        participant.email,
+        `Your Ticket for ${event.eventName}`,
+        {
+          ticketId: ticket.ticketId,
+          eventName: event.eventName,
+          eventType: event.eventType,
+          eventDate: event.eventStartDate,
+          eventEndDate: event.eventEndDate,
+          venue: event.venue,
+          status: ticket.status,
+          participantName: `${participant.firstname || ""} ${participant.lastname || ""}`.trim(),
+          participantEmail: participant.email,
+          purchaseItem: ticket.purchaseDetails?.name,
+          purchaseSize: ticket.purchaseDetails?.size,
+        },
+        ticket.qrCode,
+      );
     } catch (emailErr) {
       console.error("Email send error:", emailErr);
     }
@@ -165,14 +193,9 @@ export const approvePayment = async (req, res) => {
   }
 };
 
-// Admin rejects a merchandise payment
+// Organizer rejects a merchandise payment
 export const rejectPayment = async (req, res) => {
   try {
-    // Admin only
-    if (req.user?.role !== "admin") {
-      return res.status(403).json({ success: false, error: "Admin only" });
-    }
-
     const { ticketId } = req.params;
     const { reason } = req.body;
 
@@ -189,10 +212,21 @@ export const rejectPayment = async (req, res) => {
         .json({ success: false, error: "Ticket is not pending approval" });
     }
 
+    // Ensure the current user is the organizer of this event
+    if (
+      !ticket.eventId.organizerId ||
+      String(ticket.eventId.organizerId) !== String(req.user._id)
+    ) {
+      return res.status(403).json({
+        success: false,
+        error: "You can only reject payments for your own events",
+      });
+    }
+
     ticket.paymentStatus = "rejected";
     ticket.paymentApprovedBy = req.user._id;
     ticket.paymentApprovedAt = new Date();
-    ticket.paymentRejectedReason = reason || "Rejected by admin";
+    ticket.paymentRejectedReason = reason || "Rejected by organizer";
 
     await ticket.save();
 

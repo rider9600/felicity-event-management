@@ -2,15 +2,15 @@ import Event from "../models/event.js";
 import Ticket from "../models/ticket.js";
 import user from "../models/user.js";
 
-// Organizer analytics: registrations, sales, revenue, attendance
+// Organizer analytics: registrations, revenue, attendance per event
 export const getOrganizerAnalytics = async (req, res) => {
   try {
     const organizerId = req.user._id;
     const events = await Event.find({ organizerId });
-    let analytics = [];
+    const eventMetrics = [];
 
     for (const event of events) {
-      // Get comprehensive ticket data
+      // Get ticket data for this event
       const tickets = await Ticket.find({ eventId: event._id });
       const registrations = tickets.length;
       const attendance = tickets.filter((t) => t.attendance).length;
@@ -21,26 +21,29 @@ export const getOrganizerAnalytics = async (req, res) => {
         (t) => t.status === "cancelled",
       ).length;
 
-      let sales = 0;
       let revenue = 0;
 
       if (event.eventType === "merchandise") {
-        sales = tickets.filter((t) => t.paymentStatus === "paid").length;
+        // Sum up purchase price * quantity for all paid merchandise tickets
         revenue = tickets.reduce((sum, ticket) => {
-          return sum + (ticket.purchaseDetails?.price || 0);
+          const qty = ticket.purchaseDetails?.quantity || 1;
+          const price = ticket.purchaseDetails?.price || 0;
+          return sum + price * qty;
         }, 0);
       } else {
-        sales = registrations;
         revenue = registrations * (event.registrationFee || 0);
       }
 
-      analytics.push({
+      eventMetrics.push({
         eventId: event._id,
+        name: event.eventName,
         eventName: event.eventName,
         eventType: event.eventType,
+        date: event.eventStartDate,
         registrations,
-        sales,
+        totalUsers: registrations,
         revenue,
+        status: event.status,
         attendance,
         attendanceRate:
           registrations > 0
@@ -48,8 +51,6 @@ export const getOrganizerAnalytics = async (req, res) => {
             : 0,
         completedTickets,
         cancelledTickets,
-        status: event.status,
-        eventDate: event.eventStartDate,
         registrationLimit: event.registrationLimit,
         utilizationRate: event.registrationLimit
           ? ((registrations / event.registrationLimit) * 100).toFixed(2)
@@ -57,29 +58,35 @@ export const getOrganizerAnalytics = async (req, res) => {
       });
     }
 
-    // Overall summary
-    const summary = {
+    // Overall summary/overview for organizer
+    const overview = {
       totalEvents: events.length,
-      totalRegistrations: analytics.reduce(
+      totalRegistrations: eventMetrics.reduce(
         (sum, a) => sum + a.registrations,
         0,
       ),
-      totalRevenue: analytics.reduce((sum, a) => sum + a.revenue, 0),
-      totalAttendance: analytics.reduce((sum, a) => sum + a.attendance, 0),
+      totalRevenue: eventMetrics.reduce((sum, a) => sum + a.revenue, 0),
+      totalAttendance: eventMetrics.reduce((sum, a) => sum + a.attendance, 0),
       averageAttendanceRate:
-        analytics.length > 0
+        eventMetrics.length > 0
           ? (
-              analytics.reduce(
-                (sum, a) => sum + parseFloat(a.attendanceRate),
+              eventMetrics.reduce(
+                (sum, a) => sum + parseFloat(a.attendanceRate || 0),
                 0,
-              ) / analytics.length
+              ) / eventMetrics.length
             ).toFixed(2)
           : 0,
     };
 
-    res.json({ analytics, summary });
+    res.json({
+      success: true,
+      data: {
+        overview,
+        eventMetrics,
+      },
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 

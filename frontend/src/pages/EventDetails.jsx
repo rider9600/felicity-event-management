@@ -1127,43 +1127,6 @@ const EventDetails = () => {
                     })}
                   </div>
                 )}
-
-                {/* Payment proof upload (required for merchandise purchase) */}
-                <div className="form-group" style={{ marginTop: "14px" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "6px",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Payment Proof (image) *
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      setPaymentProofFile(file);
-                      setPaymentProofError("");
-                    }}
-                    style={{
-                      fontSize: "0.9rem",
-                      color: "#e5e7eb",
-                    }}
-                  />
-                  {paymentProofError && (
-                    <p
-                      style={{
-                        marginTop: "4px",
-                        color: "#f97373",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      {paymentProofError}
-                    </p>
-                  )}
-                </div>
               </div>
             )}
 
@@ -1232,6 +1195,48 @@ const EventDetails = () => {
                 </div>
               </div>
             )}
+
+          {/* Payment proof upload (required for all registrations) */}
+          {!registrationResult?.success && (
+            <div
+              className="form-group"
+              style={{ marginTop: "16px", marginBottom: "4px" }}
+            >
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "6px",
+                  fontWeight: 500,
+                }}
+              >
+                Payment Proof (image) *
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setPaymentProofFile(file);
+                  setPaymentProofError("");
+                }}
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#e5e7eb",
+                }}
+              />
+              {paymentProofError && (
+                <p
+                  style={{
+                    marginTop: "4px",
+                    color: "#f97373",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  {paymentProofError}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </Modal>
 

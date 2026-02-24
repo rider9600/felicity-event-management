@@ -44,7 +44,10 @@ class ErrorBoundary extends React.Component {
             <p>
               <strong>Stack trace:</strong>
             </p>
-            <pre>{this.state.errorInfo.componentStack}</pre>
+            <pre>
+              {this.state.errorInfo?.componentStack ||
+                "No component stack available."}
+            </pre>
           </details>
           <button
             onClick={() =>

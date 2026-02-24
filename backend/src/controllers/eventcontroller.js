@@ -504,9 +504,9 @@ export const getEventAnalytics = async (req, res) => {
       return res.status(403).json({ success: false, error: "Forbidden" });
     }
 
-    const tickets = await Ticket.find({ eventId: id })
-      .populate("participantId", "firstname lastname email")
-      .lean();
+      const tickets = await Ticket.find({ eventId: id })
+        .populate("participantId", "firstname lastname email")
+        .lean();
 
     const registrations = tickets.length;
     const sales = tickets.filter((t) => t.paymentStatus === "paid").length;
@@ -583,7 +583,8 @@ export const getEventParticipants = async (req, res) => {
         : "",
       email: t.participantId?.email || "",
       registeredAt: t.createdAt,
-      paymentStatus: t.paymentStatus,
+        paymentStatus: t.paymentStatus,
+        paymentProof: t.paymentProof || null,
       registrationStatus: t.registrationStatus || "pending",
       paymentDetails: t.purchaseDetails || null,
       team:
@@ -623,7 +624,30 @@ export const acceptRegistration = async (req, res) => {
       return res.status(404).json({ success: false, error: "Ticket not found" });
 
     if (ticket.registrationStatus === "accepted") {
-      return res.status(400).json({ success: false, error: "Already accepted" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Already accepted" });
+    }
+
+    // If payment proof was uploaded and is waiting for review,
+    // mark the payment as approved when the organizer accepts.
+    if (
+      ticket.paymentStatus === "pending_approval" ||
+      ticket.paymentStatus === "pending"
+    ) {
+      ticket.paymentStatus = "paid";
+    }
+
+    // Generate QR code at the moment the registration
+    // is approved so that pending registrations do not
+    // have a usable ticket yet.
+    try {
+      const { generateQRCode } = await import("../utils/qrcode.js");
+      const qrCodeData = `TICKET:${ticket.ticketId}:${eventId}:${ticket.participantId}`;
+      ticket.qrCode = await generateQRCode(qrCodeData);
+    } catch (qrErr) {
+      console.error("[QR] Failed to generate QR for ticket:", qrErr);
+      // Non‑blocking – continue without QR; email/template will handle missing image.
     }
 
     ticket.registrationStatus = "accepted";

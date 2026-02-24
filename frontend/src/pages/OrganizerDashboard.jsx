@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useEventApi } from "../hooks/useApi";
+import { useApi } from "../hooks/useApi";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import DashboardCard from "../components/cards/DashboardCard";
 import EventCard from "../components/cards/EventCard";
@@ -14,7 +14,7 @@ import "./OrganizerDashboard.css";
 const OrganizerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { getEvents, deleteEvent, loading } = useEventApi();
+  const { apiCall, loading } = useApi();
 
   const [events, setEvents] = useState([]);
   const [stats, setStats] = useState({
@@ -32,11 +32,17 @@ const OrganizerDashboard = () => {
 
   const loadOrganizerData = async () => {
     try {
-      const result = await getEvents({ organizerId: user.id });
-      if (result.success) {
-        setEvents(result.data);
-        calculateStats(result.data);
+      const result = await apiCall("/point/events/my-events");
+
+      let eventList = [];
+      if (result && result.success && Array.isArray(result.data)) {
+        eventList = result.data;
+      } else if (Array.isArray(result)) {
+        eventList = result;
       }
+
+      setEvents(eventList);
+      calculateStats(eventList);
     } catch (error) {
       console.error("Failed to load organizer data:", error);
     }
@@ -78,14 +84,21 @@ const OrganizerDashboard = () => {
     if (!eventToDelete) return;
 
     try {
-      const result = await deleteEvent(eventToDelete._id);
-      if (result.success) {
+      const result = await apiCall(`/point/events/${eventToDelete._id}`, {
+        method: "DELETE",
+      });
+      if (result.success || result.message) {
         await loadOrganizerData();
         setShowDeleteModal(false);
         setEventToDelete(null);
+      } else {
+        // eslint-disable-next-line no-alert
+        alert(result.error || "Failed to delete event");
       }
     } catch (error) {
       console.error("Failed to delete event:", error);
+      // eslint-disable-next-line no-alert
+      alert("Failed to delete event");
     }
   };
 

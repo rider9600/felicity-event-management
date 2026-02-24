@@ -72,7 +72,7 @@ export const login = async (req, res) => {
         role: newuser.role,
       },
       process.env.secretbro,
-      { expiresIn: "15m" },
+      { expiresIn: "30d" },
     );
     // Refresh token (longer-lived)
     const refreshToken = jwt.sign(

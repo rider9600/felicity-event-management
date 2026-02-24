@@ -113,7 +113,7 @@ const Tickets = () => {
       );
       const data = await res.json();
       if (data.success) {
-        setProofMsg({ type: "success", text: "Payment proof uploaded! Awaiting admin review." });
+        setProofMsg({ type: "success", text: "Payment proof uploaded! Awaiting organizer review." });
         setProofFile(null);
         // Refresh tickets
         await loadTickets();
@@ -457,7 +457,7 @@ const Tickets = () => {
               {event?.eventType === "merchandise" && selectedTicket.paymentStatus === "pending_approval" && (
                 <div className="detail-section" style={{ border: "1px solid rgba(245,158,11,0.4)", borderRadius: "8px", padding: "14px", background: "rgba(245,158,11,0.05)" }}>
                   <p style={{ color: "#fbbf24", margin: 0 }}>
-                    ⏳ Your payment proof has been submitted and is awaiting admin approval. You will receive an email once it is reviewed.
+                    ⏳ Your payment proof has been submitted and is awaiting organizer approval. You will receive an email once it is reviewed.
                   </p>
                 </div>
               )}

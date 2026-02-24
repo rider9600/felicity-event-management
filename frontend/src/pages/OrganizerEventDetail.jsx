@@ -95,13 +95,9 @@ const OrganizerEventDetail = () => {
         { method: "POST" },
       );
       if (result.success) {
-        setParticipants((prev) =>
-          prev.map((p) =>
-            p.ticketId === ticketId
-              ? { ...p, registrationStatus: "accepted" }
-              : p,
-          ),
-        );
+        // Reload event data so registrationStatus and paymentStatus
+        // are refreshed after approval.
+        await loadEventData();
         alert("Registration accepted! Ticket email sent to participant.");
       } else {
         alert(result.error || "Failed to accept registration");
@@ -374,6 +370,7 @@ const OrganizerEventDetail = () => {
                       <th>Email</th>
                       <th>Ticket ID</th>
                       <th>Registered At</th>
+                      <th>Payment Proof</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -386,6 +383,28 @@ const OrganizerEventDetail = () => {
                           <code className="ticket-code">{p.ticketId}</code>
                         </td>
                         <td>{new Date(p.registeredAt).toLocaleDateString()}</td>
+                        <td>
+                          {p.paymentProof ? (
+                            <button
+                              type="button"
+                              className="action-btn view-proof-btn"
+                              onClick={() => {
+                                const apiBase =
+                                  import.meta.env.VITE_API_BASE_URL ||
+                                  "http://localhost:5000";
+                                window.open(
+                                  `${apiBase}${p.paymentProof}`,
+                                  "_blank",
+                                  "noopener,noreferrer",
+                                );
+                              }}
+                            >
+                              View Proof
+                            </button>
+                          ) : (
+                            <span className="no-proof-label">No Proof</span>
+                          )}
+                        </td>
                         <td>
                           <button
                             className="action-btn accept-btn"

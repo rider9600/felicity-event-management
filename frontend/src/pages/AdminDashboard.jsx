@@ -40,43 +40,73 @@ const AdminDashboard = () => {
 
   const loadAdminData = async () => {
     try {
-      const [statsResult, eventsResult, usersResult, alertsResult] =
-        await Promise.all([
-          apiCall("/point/admin/stats"),
-          apiCall("/point/admin/recent-events"),
-          apiCall("/point/admin/recent-users"),
-          apiCall("/point/admin/alerts"),
-        ]);
+      const [analyticsRes, usersRes] = await Promise.all([
+        apiCall("/point/admin-dashboard/analytics"),
+        apiCall("/point/admin/users"),
+      ]);
+
+      const overview = analyticsRes.success ? analyticsRes.data.overview : {};
+      const eventMetrics = analyticsRes.success
+        ? analyticsRes.data.eventMetrics || []
+        : [];
+
+      const users =
+        usersRes?.success && Array.isArray(usersRes.data)
+          ? usersRes.data
+          : [];
+
+      const stats = {
+        totalUsers: overview.usersCount || users.length || 0,
+        totalEvents: overview.totalEvents || eventMetrics.length || 0,
+        totalRegistrations: overview.totalRegistrations || 0,
+        totalRevenue: overview.totalRevenue || 0,
+        activeOrganizers: overview.organizersCount || 0,
+        // Treat draft events as "pending approvals"
+        pendingApprovals: eventMetrics.filter(
+          (e) => (e.status || "").toLowerCase() === "draft",
+        ).length,
+      };
+
+      const recentEvents = eventMetrics
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(b.date || b.eventDate || 0) -
+            new Date(a.date || a.eventDate || 0),
+        )
+        .slice(0, 5)
+        .map((e) => ({
+          id: e.eventId,
+          eventName: e.eventName || e.name,
+          eventDescription: "",
+          eventType: e.eventType,
+          status: e.status,
+          registrationCount: e.registrationCount || e.registrations || 0,
+          registrationFee: e.registrationFee || 0,
+        }));
+
+      const recentUsers = users.slice(0, 5);
+
+      const systemAlerts = [
+        {
+          id: 1,
+          type: "warning",
+          message: `${stats.pendingApprovals} events in draft state`,
+          time: "Just now",
+        },
+        {
+          id: 2,
+          type: "info",
+          message: `Total platform revenue ₹${stats.totalRevenue.toLocaleString()}`,
+          time: "Updated",
+        },
+      ];
 
       setDashboardData({
-        stats: statsResult.success
-          ? statsResult.data
-          : {
-              totalUsers: 1247,
-              totalEvents: 89,
-              totalRegistrations: 3456,
-              totalRevenue: 2340000,
-              activeOrganizers: 23,
-              pendingApprovals: 5,
-            },
-        recentEvents: eventsResult.success ? eventsResult.data : [],
-        recentUsers: usersResult.success ? usersResult.data : [],
-        systemAlerts: alertsResult.success
-          ? alertsResult.data
-          : [
-              {
-                id: 1,
-                type: "warning",
-                message: "5 events pending approval",
-                time: "2 hours ago",
-              },
-              {
-                id: 2,
-                type: "info",
-                message: "System backup completed successfully",
-                time: "1 day ago",
-              },
-            ],
+        stats,
+        recentEvents,
+        recentUsers,
+        systemAlerts,
       });
     } catch (error) {
       console.error("Failed to load admin data:", error);

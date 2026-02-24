@@ -16,19 +16,31 @@ const DashboardCard = ({
   const renderTrend = () => {
     if (!trend) return null;
 
-    const trendClass = `dashboard-card__trend dashboard-card__trend--${trendDirection}`;
-    const trendIcon = trendDirection === "up" ? "↗" : "↘";
+    // Support simple strings ("+12%") and objects like:
+    // { value: "+12%", direction: "up" }
+    const trendValue =
+      typeof trend === "object" && trend !== null ? trend.value : trend;
+    const direction =
+      (typeof trend === "object" && trend !== null && trend.direction) ||
+      trendDirection;
+
+    if (!trendValue) return null;
+
+    const trendClass = `dashboard-card__trend dashboard-card__trend--${direction}`;
+    const trendIcon = direction === "down" ? "↘" : "↗";
 
     return (
       <span className={trendClass}>
-        {trendIcon} {trend}
+        {trendIcon} {trendValue}
       </span>
     );
   };
 
   return (
     <Card
-      className={`dashboard-card dashboard-card--${variant} ${onClick ? "dashboard-card--clickable" : ""}`}
+      className={`dashboard-card dashboard-card--${variant} ${
+        onClick ? "dashboard-card--clickable" : ""
+      }`}
       onClick={onClick}
     >
       <div className="dashboard-card__header">
@@ -52,3 +64,4 @@ const DashboardCard = ({
 };
 
 export default DashboardCard;
+

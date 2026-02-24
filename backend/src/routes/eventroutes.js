@@ -24,7 +24,7 @@ import {
   generateCalendarICS,
 } from "../controllers/eventcontroller.js";
 import { protect } from "../middleware/authmiddleware.js";
-import { organizerOnly } from "../middleware/rolemiddleware.js";
+import { organizerOnly, organizerOrAdmin } from "../middleware/rolemiddleware.js";
 const router = express.Router();
 router.post("/", protect, organizerOnly, createEvent);
 router.get("/", getEvents);
@@ -63,6 +63,6 @@ router.get("/:id/calendar.ics", generateCalendarICS);
 
 // Core event routes (catch-all at end)
 router.get("/:id", getEventById);
-router.put("/:id", protect, organizerOnly, updateEvent);
-router.delete("/:id", protect, organizerOnly, deleteEvent);
+router.put("/:id", protect, organizerOrAdmin, updateEvent);
+router.delete("/:id", protect, organizerOrAdmin, deleteEvent);
 export default router;
