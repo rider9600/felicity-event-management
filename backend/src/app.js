@@ -29,7 +29,7 @@ const app = express();
 // CORS configuration: allow frontend origins + credentials
 const allowedOrigins = [
   "http://localhost:5173",
-  // Add deployed frontend origin here when you host it (e.g. Netlify/Vercel)
+  "https://felicity-event-management-smoky.vercel.app",
 ];
 
 app.use(
