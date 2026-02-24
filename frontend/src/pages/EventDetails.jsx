@@ -32,6 +32,8 @@ const EventDetails = () => {
     selectedItem: null, // { name, size, color, variant }
     quantity: 1,
   });
+  const [paymentProofFile, setPaymentProofFile] = useState(null);
+  const [paymentProofError, setPaymentProofError] = useState("");
 
   useEffect(() => {
     loadEventDetails();
@@ -82,7 +84,7 @@ const EventDetails = () => {
       return;
     }
 
-    // Validate merchandise selection
+    // Validate merchandise selection + payment proof
     if (event.eventType === "merchandise" && !registrationData.selectedItem) {
       setRegistrationResult({
         success: false,
@@ -90,6 +92,13 @@ const EventDetails = () => {
       });
       return;
     }
+    if (!paymentProofFile) {
+      setPaymentProofError(
+        "Please upload payment proof before confirming registration.",
+      );
+      return;
+    }
+    setPaymentProofError("");
 
     try {
       setRegistering(true);
@@ -121,24 +130,10 @@ const EventDetails = () => {
       }
 
       if (
-        result &&
-        !result.error &&
-        (result.msg || result.ticket || result.success)
+        !result ||
+        result.error ||
+        !(result.msg || result.ticket || result.success)
       ) {
-        setRegistrationResult({
-          success: true,
-          message:
-            event.eventType === "merchandise"
-              ? "Purchase successful! A confirmation email with your ticket and QR code has been sent."
-              : "Registration successful! A confirmation email with your ticket and QR code has been sent.",
-        });
-        // Refresh event data after a short delay
-        setTimeout(() => {
-          setShowRegistrationModal(false);
-          setRegistrationResult(null);
-          loadEventDetails();
-        }, 2500);
-      } else {
         setRegistrationResult({
           success: false,
           message:
@@ -146,7 +141,64 @@ const EventDetails = () => {
             result?.msg ||
             "Registration failed. Please try again.",
         });
+        return;
       }
+
+      // Upload payment proof for the created ticket (all event types)
+      try {
+        const apiBase =
+          import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+        const formData = new FormData();
+        formData.append("proof", paymentProofFile);
+        const token = localStorage.getItem("token");
+        const ticketId =
+          result.ticket?.ticketId || result.data?.ticket?.ticketId;
+
+        const res = await fetch(
+          `${apiBase}/point/merchandise/${ticketId}/proof`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          },
+        );
+        const proofData = await res.json();
+        if (!proofData.success) {
+          setRegistrationResult({
+            success: false,
+            message:
+              proofData.error ||
+              "Registration created, but payment proof upload failed. Please try again from the Tickets page.",
+          });
+          return;
+        }
+      } catch (err) {
+        setRegistrationResult({
+          success: false,
+          message:
+            "Registration created, but payment proof upload failed. Please try again from the Tickets page.",
+        });
+        return;
+      }
+
+      // Success message
+      setRegistrationResult({
+        success: true,
+        message:
+          event.eventType === "merchandise"
+            ? "Purchase submitted with payment proof. Awaiting organizer approval."
+            : "Registration submitted with payment proof. Awaiting organizer approval.",
+      });
+      setPaymentProofFile(null);
+
+      // Refresh event data after a short delay
+      setTimeout(() => {
+        setShowRegistrationModal(false);
+        setRegistrationResult(null);
+        loadEventDetails();
+      }, 2500);
     } catch (error) {
       setRegistrationResult({
         success: false,
@@ -1075,6 +1127,43 @@ const EventDetails = () => {
                     })}
                   </div>
                 )}
+
+                {/* Payment proof upload (required for merchandise purchase) */}
+                <div className="form-group" style={{ marginTop: "14px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: "6px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Payment Proof (image) *
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setPaymentProofFile(file);
+                      setPaymentProofError("");
+                    }}
+                    style={{
+                      fontSize: "0.9rem",
+                      color: "#e5e7eb",
+                    }}
+                  />
+                  {paymentProofError && (
+                    <p
+                      style={{
+                        marginTop: "4px",
+                        color: "#f97373",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      {paymentProofError}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
