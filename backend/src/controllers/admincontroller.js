@@ -1,4 +1,5 @@
 import user from "../models/user.js";
+import Event from "../models/event.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -7,18 +8,49 @@ const generatePassword = () => {
   return crypto.randomBytes(8).toString("hex");
 };
 
-// Admin: Create an organizer account (auto-generates password)
+// Admin: Create an organizer account (auto-generates login email and password)
 export const createorganizer = async (req, res) => {
   try {
-    const { firstname, lastname, email, organizerName, category, description } = req.body;
+    const { firstname, lastname, organizerName, category, description } =
+      req.body;
 
-    if (!firstname || !lastname || !email) {
-      return res.status(400).json({ success: false, error: "firstname, lastname and email are required" });
+    if (!firstname || !lastname) {
+      return res.status(400).json({
+        success: false,
+        error: "firstname and lastname are required",
+      });
     }
 
-    const exists = await user.findOne({ email });
-    if (exists) {
-      return res.status(400).json({ success: false, error: "A user with this email already exists" });
+    const displayName =
+      organizerName && organizerName.trim().length > 0
+        ? organizerName.trim()
+        : `${firstname} ${lastname}`.trim();
+
+    // Generate a unique login email for the organizer
+    const domain =
+      process.env.ORGANIZER_EMAIL_DOMAIN || "organizer.felicity.local";
+    const baseSlug =
+      displayName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "")
+        .slice(0, 20) || "organizer";
+
+    let loginEmail = "";
+    for (let i = 0; i < 5; i += 1) {
+      const suffix = i === 0 ? "" : `_${crypto.randomBytes(2).toString("hex")}`;
+      const candidate = `${baseSlug}${suffix}@${domain}`;
+      // eslint-disable-next-line no-await-in-loop
+      const exists = await user.findOne({ email: candidate });
+      if (!exists) {
+        loginEmail = candidate;
+        break;
+      }
+    }
+
+    if (!loginEmail) {
+      loginEmail = `${baseSlug}_${crypto
+        .randomBytes(4)
+        .toString("hex")}@${domain}`;
     }
 
     const newpassword = generatePassword();
@@ -27,11 +59,11 @@ export const createorganizer = async (req, res) => {
     const organiser = await user.create({
       firstname,
       lastname,
-      email,
+      email: loginEmail,
       password: hashed,
       role: "organizer",
       participantType: "non-iiit",
-      organizerName: organizerName || `${firstname} ${lastname}`,
+      organizerName: displayName,
       category: category || "General",
       description: description || "",
     });
@@ -43,7 +75,8 @@ export const createorganizer = async (req, res) => {
       message: "Organizer created successfully",
       data: {
         organizer: safeUser,
-        loginPassword: newpassword, // Admin shares this with the organizer
+        loginEmail,
+        loginPassword: newpassword, // Admin shares these with the organizer
       },
     });
   } catch (err) {
@@ -98,8 +131,17 @@ export const removeOrganizer = async (req, res) => {
 export const deleteOrganizer = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Delete all events belonging to this organizer
+    await Event.deleteMany({ organizerId: id });
+
+    // Delete the organizer account itself
     await user.findByIdAndDelete(id);
-    res.json({ success: true, message: "Organizer permanently deleted" });
+
+    res.json({
+      success: true,
+      message: "Organizer and all associated events permanently deleted",
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

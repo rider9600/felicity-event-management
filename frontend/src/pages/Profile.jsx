@@ -20,7 +20,7 @@ const Profile = () => {
     email: "",
     contactNumber: "",
     college: "",
-    interests: [],
+    interests: [], // kept for backward compatibility but not edited here
     followedClubs: [],
   });
 
@@ -251,27 +251,6 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="input-group">
-            <label>Interests (comma-separated)</label>
-            <input
-              type="text"
-              value={profileData.interests.join(", ")}
-              onChange={(e) =>
-                setProfileData((prev) => ({
-                  ...prev,
-                  interests: e.target.value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter((s) => s),
-                }))
-              }
-              placeholder="e.g., music, coding, sports"
-              className="form-input"
-            />
-          </div>
-        </div>
-
         <div className="form-actions">
           <Button type="submit" variant="primary" disabled={updateLoading}>
             {updateLoading ? "Updating..." : "Update Profile"}
@@ -305,6 +284,29 @@ const Profile = () => {
                 }))
               }
               placeholder="e.g., music, technology, sports, art"
+              className="form-input"
+            />
+          </div>
+        </div>
+
+        <div className="preference-section">
+          <h4>Clubs You Follow</h4>
+          <p>These clubs will influence the events you see first.</p>
+          <div className="input-group">
+            <label>Followed Clubs (IDs, comma-separated)</label>
+            <input
+              type="text"
+              value={preferences.followedClubs?.join(", ") || ""}
+              onChange={(e) =>
+                setPreferences((prev) => ({
+                  ...prev,
+                  followedClubs: e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s),
+                }))
+              }
+              placeholder="Usually managed from Clubs & Organizers page"
               className="form-input"
             />
           </div>

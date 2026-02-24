@@ -13,6 +13,32 @@ const Navbar = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [theme, setTheme] = useState("light");
+
+  // Initialize theme from localStorage / system preference
+  useEffect(() => {
+    const stored = window.localStorage.getItem("theme");
+    const prefersDark = window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initial = stored || (prefersDark ? "dark" : "light");
+    setTheme(initial);
+    document.documentElement.setAttribute(
+      "data-theme",
+      initial === "dark" ? "dark" : "light",
+    );
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute(
+        "data-theme",
+        next === "dark" ? "dark" : "light",
+      );
+      window.localStorage.setItem("theme", next);
+      return next;
+    });
+  };
 
   // Close menu on route change
   useEffect(() => {
@@ -53,7 +79,10 @@ const Navbar = () => {
           ...commonItems,
           { label: "Dashboard", path: "/admin/dashboard" },
           { label: "Manage Clubs/Organizers", path: "/admin/clubs" },
-          { label: "Password Reset Requests", path: "/admin/password-requests" },
+          {
+            label: "Password Reset Requests",
+            path: "/admin/password-requests",
+          },
           { label: "Analytics", path: "/admin/analytics" },
           { label: "Profile", path: "/profile" },
         ];
@@ -65,7 +94,8 @@ const Navbar = () => {
           { label: "Ongoing Events", path: "/organizer/events?status=ongoing" },
           { label: "Create Event", path: "/organizer/events/create" },
           { label: "Analytics", path: "/organizer/analytics" },
-          { label: "Profile", path: "/profile" },
+          { label: "Password Reset", path: "/organizer/password-reset" },
+          { label: "Profile", path: "/organizer/profile" },
         ];
       case "participant":
       default:
@@ -82,10 +112,14 @@ const Navbar = () => {
 
   const getRoleBadgeVariant = (role) => {
     switch (role) {
-      case "admin": return "danger";
-      case "organizer": return "primary";
-      case "participant": return "success";
-      default: return "default";
+      case "admin":
+        return "danger";
+      case "organizer":
+        return "primary";
+      case "participant":
+        return "success";
+      default:
+        return "default";
     }
   };
 
@@ -121,6 +155,16 @@ const Navbar = () => {
 
         {/* Right section */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* Theme toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            className="theme-toggle-btn"
+          >
+            {theme === "dark" ? "☀" : "🌙"}
+          </button>
+
           {isAuthenticated && !isMobile && (
             <div className="navbar-user">
               <div className="navbar-user__info">

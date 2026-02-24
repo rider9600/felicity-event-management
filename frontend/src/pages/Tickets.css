@@ -1,23 +1,21 @@
-/* ===========================================
-   TICKETS PAGE - NEO-BRUTALISM STYLE
-   =========================================== */
-
 .tickets-stats {
   display: flex;
   gap: var(--space-6);
   margin-bottom: var(--space-8);
   padding: var(--space-6);
-  background: var(--cream);
-  border: var(--border-bold);
-  box-shadow: var(--shadow-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   justify-content: space-around;
 }
 
 .stat-item {
   text-align: center;
   padding: var(--space-4);
-  background: var(--white);
-  border: 3px solid var(--black);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
   min-width: 120px;
 }
 
@@ -25,19 +23,15 @@
   display: block;
   font-size: 2.5rem;
   font-weight: 900;
-  color: var(--hot-pink);
-  font-family: var(--font-chunk);
+  color: var(--brand-primary);
   line-height: 1;
 }
 
 .stat-label {
   display: block;
   font-size: var(--text-xs);
-  color: var(--black);
+  color: var(--text-secondary);
   margin-top: var(--space-2);
-  font-family: var(--font-chunk);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .tickets-controls {
@@ -45,8 +39,9 @@
   gap: var(--space-4);
   margin-bottom: var(--space-8);
   padding: var(--space-5);
-  background: var(--white);
-  border: var(--border-bold);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
   box-shadow: var(--shadow-sm);
   align-items: flex-end;
 }
@@ -65,17 +60,16 @@
 .empty-state {
   text-align: center;
   padding: var(--space-12) var(--space-6);
-  background: var(--cream);
-  border: var(--border-bold);
-  box-shadow: var(--shadow-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .empty-state h3 {
   margin-bottom: var(--space-2);
-  color: var(--black);
-  font-family: var(--font-chunk);
+  color: var(--text-primary);
   font-size: var(--text-xl);
-  text-transform: uppercase;
 }
 
 .empty-state p {
@@ -91,7 +85,7 @@
 .detail-section {
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
-  border-bottom: 3px dashed var(--black);
+  border-bottom: 1px dashed var(--border-light);
 }
 
 .detail-section:last-child {
@@ -100,13 +94,12 @@
 
 .detail-section h4 {
   margin-bottom: var(--space-4);
-  color: var(--black);
+  color: var(--text-primary);
   font-size: var(--text-lg);
-  font-family: var(--font-chunk);
-  text-transform: uppercase;
-  background: var(--neon-cyan);
+  background: rgba(35, 106, 242, 0.08);
   padding: var(--space-2) var(--space-3);
-  border: 2px solid var(--black);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
   display: inline-block;
 }
 
@@ -116,15 +109,17 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-2);
-  background: var(--cream);
-  border: 2px solid var(--black);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
 }
 
 .qr-code-display {
   text-align: center;
   padding: var(--space-4);
-  background: var(--white);
-  border: 3px solid var(--black);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
 }
 
 .qr-placeholder {
@@ -133,10 +128,10 @@
   align-items: center;
   justify-content: center;
   height: 150px;
-  background: var(--bg-dark);
-  border: 3px solid var(--neon-cyan);
-  color: var(--neon-cyan);
-  font-family: var(--font-mono);
+  background: var(--brand-dark);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--brand-primary);
+  color: var(--brand-primary);
 }
 
 .qr-placeholder small {

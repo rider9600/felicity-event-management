@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: var(--color-text, #f0f0f0);
+  color: var(--text-primary);
 }
 
 .event-header {
@@ -16,7 +16,7 @@
 }
 
 .event-type {
-  color: var(--neon-cyan, #00ffff);
+  color: var(--brand-cyan);
   font-size: 16px;
   text-transform: capitalize;
 }
@@ -46,13 +46,13 @@
 }
 
 .tab.active {
-  color: var(--neon-cyan, #00ffff);
-  border-bottom-color: var(--neon-cyan, #00ffff);
+  color: var(--brand-primary);
+  border-bottom-color: var(--brand-primary);
 }
 
 .tab:hover:not(.active) {
-  color: var(--off-white, #fffdf5);
-  background: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 /* ─── TAB CONTENT ─── */
@@ -72,15 +72,15 @@
 
 .overview-item {
   padding: 14px;
-  background: rgba(255,255,255,0.06);
+  background: var(--bg-primary);
   border-radius: 8px;
-  border-left: 4px solid var(--neon-cyan, #00ffff);
+  border-left: 4px solid var(--brand-primary);
 }
 
 .overview-item label {
   display: block;
   font-weight: 700;
-  color: var(--cream, #fcec89);
+  color: var(--text-secondary);
   margin-bottom: 5px;
   font-size: 13px;
   text-transform: uppercase;
@@ -131,7 +131,7 @@
 
 .team-stats h3 {
   margin-bottom: 16px;
-  color: var(--cream, #fcec89);
+  color: var(--text-primary);
 }
 
 .team-stats table {
@@ -261,8 +261,8 @@
 
 /* ─── TICKET CODE ─── */
 .ticket-code {
-  background: rgba(0,255,255,0.08);
-  color: var(--neon-cyan, #00ffff);
+  background: rgba(35,106,242,0.1);
+  color: var(--brand-primary);
   padding: 2px 7px;
   border-radius: 4px;
   font-size: 12px;
@@ -285,7 +285,7 @@
 .attendance-heading {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--cream, #fcec89);
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
@@ -317,11 +317,11 @@
 }
 
 .ticket-number-input::placeholder { color: rgba(255,255,255,0.4); }
-.ticket-number-input:focus { border-color: var(--neon-cyan, #00ffff); }
+.ticket-number-input:focus { border-color: var(--brand-primary); }
 
 .mark-btn {
   padding: 10px 22px;
-  background: var(--neon-cyan, #00ffff);
+  background: var(--brand-primary);
   color: #000;
   border: none;
   border-radius: 8px;

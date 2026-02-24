@@ -10,12 +10,12 @@
 .profile-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--color-text, #f0f0f0);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .profile-header p {
-  color: var(--color-text-secondary, #a0a0b0);
+  color: var(--text-secondary);
   font-size: 1.1rem;
 }
 
@@ -24,7 +24,7 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid var(--color-border);
+  border-bottom: 2px solid var(--border-light);
   overflow-x: auto;
 }
 
@@ -35,7 +35,7 @@
   padding: 1rem 1.5rem;
   border: none;
   background: transparent;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
@@ -45,13 +45,13 @@
 }
 
 .tab-button:hover {
-  color: var(--color-text);
-  background: var(--color-background-soft);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .tab-button.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+  color: var(--brand-primary);
+  border-bottom-color: var(--brand-primary);
 }
 
 .tab-icon {
@@ -76,9 +76,9 @@
 .section-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--color-primary-light);
+  border-bottom: 2px solid var(--border-light);
   padding-bottom: 0.5rem;
 }
 
@@ -101,7 +101,7 @@
   gap: 1rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-light);
 }
 
 /* Preferences */
@@ -116,21 +116,21 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: var(--color-background-soft);
+  background: var(--bg-card);
   border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-light);
 }
 
 .preference-info h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 .preference-info p {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -146,21 +146,21 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background: var(--color-background-soft);
+  background: var(--bg-card);
   border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-light);
 }
 
 .security-info h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .security-info p {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -271,24 +271,24 @@
 
 .preference-item:hover,
 .security-item:hover {
-  border-color: var(--color-primary-light);
+  border-color: var(--brand-primary);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Form Validation States */
 .input-error {
-  border-color: var(--color-danger);
+  border-color: var(--status-error);
 }
 
 .error-message {
-  color: var(--color-danger);
+  color: var(--status-error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
 
 /* Success States */
 .success-message {
-  color: var(--color-success);
+  color: var(--status-success);
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
@@ -307,13 +307,13 @@ input[type="checkbox"] {
 
 /* Focus States */
 .tab-button:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
 }
 
 .preference-item:focus-within,
 .security-item:focus-within {
-  border-color: var(--color-primary);
+  border-color: var(--brand-primary);
 }
 
 /* Additional Form Styles for Profile */
@@ -325,18 +325,18 @@ input[type="checkbox"] {
 
 .input-group label {
   font-weight: 500;
-  color: var(--color-text);
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
 .form-input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--color-border, rgba(255,255,255,0.2));
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--color-text, #f0f0f0);
+  background: var(--bg-input);
+  color: var(--text-primary);
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease;
@@ -344,7 +344,7 @@ input[type="checkbox"] {
 
 .form-input:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--brand-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -354,13 +354,13 @@ input[type="checkbox"] {
 
 .preference-section h4 {
   margin: 0 0 0.5rem 0;
-  color: var(--color-text);
+  color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .preference-section p {
   margin: 0 0 1rem 0;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }

@@ -39,11 +39,19 @@ const authReducer = (state, action) => {
         ...state,
         token: action.payload,
       };
-    case "UPDATE_USER":
+    case "UPDATE_USER": {
+      const mergedUser = { ...(state.user || {}), ...(action.payload || {}) };
+      currentUser = mergedUser;
+      try {
+        localStorage.setItem("user", JSON.stringify(mergedUser));
+      } catch {
+        // ignore storage errors
+      }
       return {
         ...state,
-        user: { ...state.user, ...action.payload },
+        user: mergedUser,
       };
+    }
     case "CLEAR_ERROR":
       return {
         ...state,

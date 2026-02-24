@@ -1,5 +1,5 @@
 /* ============================================
-   MODAL - NEO-BRUTALISM STYLE
+   MODAL - MODERN CLEAN STYLE
    ============================================ */
 
 .modal-overlay {
@@ -8,7 +8,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,14 +17,14 @@
 }
 
 .modal {
-  background: var(--off-white);
-  border: var(--border-thick) solid #000;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   box-shadow: var(--shadow-xl);
+  border-radius: var(--radius-xl);
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: slide-up 0.3s var(--ease-bounce);
 }
 
 .modal--small {
@@ -43,60 +43,52 @@
 }
 
 .modal-header {
-  padding: var(--space-4) var(--space-6);
-  border-bottom: var(--border-medium) solid #000;
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--neon-cyan);
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark));
 }
 
 .modal-title {
   margin: 0;
-  color: #000;
-  font-family: var(--font-chunk);
+  color: #ffffff;
   font-size: var(--text-xl);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: var(--font-weight-bold);
 }
 
 .modal-close {
-  background: #000;
-  border: 2px solid #000;
+  background: transparent;
+  border: none;
   font-size: var(--text-xl);
   cursor: pointer;
-  color: var(--off-white);
-  padding: 0;
-  width: 36px;
-  height: 36px;
+  color: white;
+  padding: var(--space-2);
+  width: auto;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-chunk);
-  transition: all var(--transition-fast);
-  box-shadow: 2px 2px 0 var(--hot-pink);
+  transition: all var(--transition-base);
 }
 
 .modal-close:hover {
-  background: var(--hot-pink);
-  color: #000;
-  transform: translateY(-2px);
+  transform: scale(1.1);
 }
 
 .modal-body {
   padding: var(--space-6);
   overflow-y: auto;
   flex: 1;
-  background-color: var(--off-white);
+  background-color: var(--bg-primary);
 }
 
 .modal-footer {
   padding: var(--space-4) var(--space-6);
-  border-top: var(--border-medium) solid #000;
+  border-top: 1px solid var(--border-light);
   display: flex;
   gap: var(--space-3);
-  background-color: var(--vintage-paper);
-  justify-content: flex-end;
-}
+  background-color: var(--bg-secondary);
   justify-content: flex-end;
 }

@@ -6,6 +6,7 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 import Button from "../components/common/Button";
 import Loading from "../components/common/Loading";
 import Modal from "../components/common/Modal";
+import Forum from "../components/forum/Forum";
 import "./OrganizerEventDetail.css";
 
 const OrganizerEventDetail = () => {
@@ -40,12 +41,16 @@ const OrganizerEventDetail = () => {
         setEvent(payload.event || payload);
       }
 
-      const analyticsResult = await apiCall(`/point/events/${eventId}/analytics`);
+      const analyticsResult = await apiCall(
+        `/point/events/${eventId}/analytics`,
+      );
       if (analyticsResult.success) {
         setAnalytics(analyticsResult.data);
       }
 
-      const participantsResult = await apiCall(`/point/events/${eventId}/participants`);
+      const participantsResult = await apiCall(
+        `/point/events/${eventId}/participants`,
+      );
       if (participantsResult.success) {
         setParticipants(participantsResult.data || []);
       }
@@ -85,13 +90,15 @@ const OrganizerEventDetail = () => {
     try {
       const result = await apiCall(
         `/point/events/${eventId}/registrations/${ticketId}/accept`,
-        { method: "POST" }
+        { method: "POST" },
       );
       if (result.success) {
         setParticipants((prev) =>
           prev.map((p) =>
-            p.ticketId === ticketId ? { ...p, registrationStatus: "accepted" } : p
-          )
+            p.ticketId === ticketId
+              ? { ...p, registrationStatus: "accepted" }
+              : p,
+          ),
         );
         alert("Registration accepted! Ticket email sent to participant.");
       } else {
@@ -110,13 +117,15 @@ const OrganizerEventDetail = () => {
     try {
       const result = await apiCall(
         `/point/events/${eventId}/registrations/${ticketId}/reject`,
-        { method: "POST" }
+        { method: "POST" },
       );
       if (result.success) {
         setParticipants((prev) =>
           prev.map((p) =>
-            p.ticketId === ticketId ? { ...p, registrationStatus: "rejected" } : p
-          )
+            p.ticketId === ticketId
+              ? { ...p, registrationStatus: "rejected" }
+              : p,
+          ),
         );
       } else {
         alert(result.error || "Failed to reject registration");
@@ -131,7 +140,10 @@ const OrganizerEventDetail = () => {
   const handleMarkAttendance = async () => {
     const trimmed = ticketInput.trim();
     if (!trimmed) {
-      setAttendanceMsg({ type: "error", text: "Please enter a ticket number." });
+      setAttendanceMsg({
+        type: "error",
+        text: "Please enter a ticket number.",
+      });
       return;
     }
     setAttendanceLoading(true);
@@ -148,7 +160,10 @@ const OrganizerEventDetail = () => {
         const res = await apiCall(`/point/events/${eventId}/participants`);
         if (res.success) setParticipants(res.data || []);
       } else {
-        setAttendanceMsg({ type: "error", text: result.error || "Failed to mark attendance." });
+        setAttendanceMsg({
+          type: "error",
+          text: result.error || "Failed to mark attendance.",
+        });
       }
     } catch (err) {
       setAttendanceMsg({ type: "error", text: "Error: " + err.message });
@@ -158,13 +173,13 @@ const OrganizerEventDetail = () => {
   };
 
   const pendingParticipants = participants.filter(
-    (p) => !p.registrationStatus || p.registrationStatus === "pending"
+    (p) => !p.registrationStatus || p.registrationStatus === "pending",
   );
   const acceptedParticipants = participants.filter(
-    (p) => p.registrationStatus === "accepted"
+    (p) => p.registrationStatus === "accepted",
   );
   const rejectedParticipants = participants.filter(
-    (p) => p.registrationStatus === "rejected"
+    (p) => p.registrationStatus === "rejected",
   );
 
   const tabs = [
@@ -172,6 +187,7 @@ const OrganizerEventDetail = () => {
     { id: "analytics", label: "Analytics" },
     { id: "participants", label: `Participants (${participants.length})` },
     { id: "attendance", label: "Attendance" },
+    { id: "forum", label: "💬 Forum" },
   ];
 
   if (loading || !event || !analytics) {
@@ -201,27 +217,67 @@ const OrganizerEventDetail = () => {
               key={t.id}
               className={`tab ${activeTab === t.id ? "active" : ""}`}
               onClick={() => setActiveTab(t.id)}
+              style={{ whiteSpace: "nowrap" }}
             >
               {t.label}
             </button>
           ))}
         </div>
 
+        {/* Forum Tab */}
+        {activeTab === "forum" && (
+          <div className="tab-content" style={{ padding: "20px 0" }}>
+            <Forum eventId={eventId} />
+          </div>
+        )}
+
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="tab-content">
             <div className="overview-grid">
-              <div className="overview-item"><label>Name:</label><p>{event.eventName}</p></div>
-              <div className="overview-item"><label>Type:</label><p>{event.eventType}</p></div>
-              <div className="overview-item"><label>Status:</label><p>{event.status}</p></div>
-              <div className="overview-item"><label>Start Date:</label><p>{new Date(event.eventStartDate).toLocaleDateString()}</p></div>
-              <div className="overview-item"><label>End Date:</label><p>{new Date(event.eventEndDate).toLocaleDateString()}</p></div>
-              <div className="overview-item"><label>Registration Deadline:</label><p>{new Date(event.registrationDeadline).toLocaleDateString()}</p></div>
-              <div className="overview-item"><label>Description:</label><p>{event.eventDescription}</p></div>
-              <div className="overview-item"><label>Venue:</label><p>{event.venue || "N/A"}</p></div>
-              <div className="overview-item"><label>Fee:</label><p>₹{event.registrationFee}</p></div>
+              <div className="overview-item">
+                <label>Name:</label>
+                <p>{event.eventName}</p>
+              </div>
+              <div className="overview-item">
+                <label>Type:</label>
+                <p>{event.eventType}</p>
+              </div>
+              <div className="overview-item">
+                <label>Status:</label>
+                <p>{event.status}</p>
+              </div>
+              <div className="overview-item">
+                <label>Start Date:</label>
+                <p>{new Date(event.eventStartDate).toLocaleDateString()}</p>
+              </div>
+              <div className="overview-item">
+                <label>End Date:</label>
+                <p>{new Date(event.eventEndDate).toLocaleDateString()}</p>
+              </div>
+              <div className="overview-item">
+                <label>Registration Deadline:</label>
+                <p>
+                  {new Date(event.registrationDeadline).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="overview-item">
+                <label>Description:</label>
+                <p>{event.eventDescription}</p>
+              </div>
+              <div className="overview-item">
+                <label>Venue:</label>
+                <p>{event.venue || "N/A"}</p>
+              </div>
+              <div className="overview-item">
+                <label>Fee:</label>
+                <p>₹{event.registrationFee}</p>
+              </div>
               {event.eligibility && (
-                <div className="overview-item"><label>Eligibility:</label><p>{event.eligibility}</p></div>
+                <div className="overview-item">
+                  <label>Eligibility:</label>
+                  <p>{event.eligibility}</p>
+                </div>
               )}
             </div>
           </div>
@@ -233,23 +289,33 @@ const OrganizerEventDetail = () => {
             <div className="analytics-grid">
               <div className="analytics-card">
                 <div className="analytics-label">Registrations</div>
-                <div className="analytics-value">{analytics?.registrations || 0}</div>
+                <div className="analytics-value">
+                  {analytics?.registrations || 0}
+                </div>
               </div>
               <div className="analytics-card">
                 <div className="analytics-label">Pending</div>
-                <div className="analytics-value">{pendingParticipants.length}</div>
+                <div className="analytics-value">
+                  {pendingParticipants.length}
+                </div>
               </div>
               <div className="analytics-card">
                 <div className="analytics-label">Accepted</div>
-                <div className="analytics-value">{acceptedParticipants.length}</div>
+                <div className="analytics-value">
+                  {acceptedParticipants.length}
+                </div>
               </div>
               <div className="analytics-card">
                 <div className="analytics-label">Attendance</div>
-                <div className="analytics-value">{analytics?.attendance || 0}</div>
+                <div className="analytics-value">
+                  {analytics?.attendance || 0}
+                </div>
               </div>
               <div className="analytics-card">
                 <div className="analytics-label">Revenue</div>
-                <div className="analytics-value">₹{analytics?.revenue || 0}</div>
+                <div className="analytics-value">
+                  ₹{analytics?.revenue || 0}
+                </div>
               </div>
             </div>
             {analytics?.teamStats && analytics.teamStats.length > 0 && (
@@ -258,7 +324,10 @@ const OrganizerEventDetail = () => {
                 <table>
                   <thead>
                     <tr>
-                      <th>Team ID</th><th>Members</th><th>Attended</th><th>Complete</th>
+                      <th>Team ID</th>
+                      <th>Members</th>
+                      <th>Attended</th>
+                      <th>Complete</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -282,7 +351,10 @@ const OrganizerEventDetail = () => {
           <div className="tab-content">
             <div className="participants-header">
               <h3>Participants ({participants.length})</h3>
-              <Button variant="primary" onClick={() => setShowExportModal(true)}>
+              <Button
+                variant="primary"
+                onClick={() => setShowExportModal(true)}
+              >
                 Export CSV
               </Button>
             </div>
@@ -296,8 +368,11 @@ const OrganizerEventDetail = () => {
                 <table className="participants-table">
                   <thead>
                     <tr>
-                      <th>Name</th><th>Email</th><th>Ticket ID</th>
-                      <th>Registered At</th><th>Actions</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Ticket ID</th>
+                      <th>Registered At</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -305,7 +380,9 @@ const OrganizerEventDetail = () => {
                       <tr key={p.ticketId}>
                         <td>{p.name}</td>
                         <td>{p.email}</td>
-                        <td><code className="ticket-code">{p.ticketId}</code></td>
+                        <td>
+                          <code className="ticket-code">{p.ticketId}</code>
+                        </td>
                         <td>{new Date(p.registeredAt).toLocaleDateString()}</td>
                         <td>
                           <button
@@ -313,14 +390,18 @@ const OrganizerEventDetail = () => {
                             onClick={() => handleAccept(p.ticketId)}
                             disabled={!!actionLoading[p.ticketId]}
                           >
-                            {actionLoading[p.ticketId] === "accepting" ? "..." : "✓ Accept"}
+                            {actionLoading[p.ticketId] === "accepting"
+                              ? "..."
+                              : "✓ Accept"}
                           </button>
                           <button
                             className="action-btn reject-btn"
                             onClick={() => handleReject(p.ticketId)}
                             disabled={!!actionLoading[p.ticketId]}
                           >
-                            {actionLoading[p.ticketId] === "rejecting" ? "..." : "✗ Reject"}
+                            {actionLoading[p.ticketId] === "rejecting"
+                              ? "..."
+                              : "✗ Reject"}
                           </button>
                         </td>
                       </tr>
@@ -341,8 +422,11 @@ const OrganizerEventDetail = () => {
                 <table className="participants-table">
                   <thead>
                     <tr>
-                      <th>Name</th><th>Email</th><th>Ticket ID</th>
-                      <th>Payment</th><th>Attended</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Ticket ID</th>
+                      <th>Payment</th>
+                      <th>Attended</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -350,7 +434,9 @@ const OrganizerEventDetail = () => {
                       <tr key={p.ticketId}>
                         <td>{p.name}</td>
                         <td>{p.email}</td>
-                        <td><code className="ticket-code">{p.ticketId}</code></td>
+                        <td>
+                          <code className="ticket-code">{p.ticketId}</code>
+                        </td>
                         <td>
                           <span className={`status ${p.paymentStatus}`}>
                             {p.paymentStatus}
@@ -374,14 +460,20 @@ const OrganizerEventDetail = () => {
                 </h4>
                 <table className="participants-table">
                   <thead>
-                    <tr><th>Name</th><th>Email</th><th>Ticket ID</th></tr>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Ticket ID</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {rejectedParticipants.map((p) => (
                       <tr key={p.ticketId}>
                         <td>{p.name}</td>
                         <td>{p.email}</td>
-                        <td><code className="ticket-code">{p.ticketId}</code></td>
+                        <td>
+                          <code className="ticket-code">{p.ticketId}</code>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -397,8 +489,8 @@ const OrganizerEventDetail = () => {
             <div className="attendance-section">
               <h3 className="attendance-heading">Mark Attendance</h3>
               <p className="attendance-desc">
-                Enter the participant's ticket number to mark them as attended. The ticket must
-                have been accepted first.
+                Enter the participant's ticket number to mark them as attended.
+                The ticket must have been accepted first.
               </p>
 
               <div className="attendance-input-row">
@@ -421,7 +513,8 @@ const OrganizerEventDetail = () => {
 
               {attendanceMsg && (
                 <div className={`attendance-feedback ${attendanceMsg.type}`}>
-                  {attendanceMsg.type === "success" ? "✅" : "❌"} {attendanceMsg.text}
+                  {attendanceMsg.type === "success" ? "✅" : "❌"}{" "}
+                  {attendanceMsg.text}
                 </div>
               )}
 
@@ -432,7 +525,10 @@ const OrganizerEventDetail = () => {
                   <table className="participants-table">
                     <thead>
                       <tr>
-                        <th>Name</th><th>Email</th><th>Ticket Number</th><th>Attended</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Ticket Number</th>
+                        <th>Attended</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -471,7 +567,10 @@ const OrganizerEventDetail = () => {
         title="Export Participants"
         footer={
           <>
-            <Button variant="secondary" onClick={() => setShowExportModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowExportModal(false)}
+            >
               Cancel
             </Button>
             <Button variant="primary" onClick={handleExportCSV}>

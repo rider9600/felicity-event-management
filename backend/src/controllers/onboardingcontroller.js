@@ -1,29 +1,43 @@
 import user from "../models/user.js";
 
-// Handle onboarding - save interests and mark as onboarded
+// Handle onboarding - save interests / followed clubs and mark as onboarded
 export const handleOnboarding = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { interests } = req.body;
+    const { interests, followedClubs } = req.body;
 
-    // Validate interests is an array
-    if (!Array.isArray(interests)) {
-      return res.status(400).json({
-        success: false,
-        error: "Interests must be an array",
-      });
+    const updatePayload = {
+      isOnboarded: true,
+      onboardingCompletedAt: new Date(),
+    };
+
+    // Interests are optional but must be an array when provided
+    if (interests !== undefined) {
+      if (!Array.isArray(interests)) {
+        return res.status(400).json({
+          success: false,
+          error: "Interests must be an array",
+        });
+      }
+      updatePayload.interests = interests;
     }
 
-    // Find and update user with interests and onboarding status
-    const updatedUser = await user.findByIdAndUpdate(
-      userId,
-      {
-        interests: interests,
-        isOnboarded: true,
-        onboardingCompletedAt: new Date(),
-      },
-      { new: true },
-    );
+    // Followed clubs (selected in onboarding) are optional but must be an array
+    if (followedClubs !== undefined) {
+      if (!Array.isArray(followedClubs)) {
+        return res.status(400).json({
+          success: false,
+          error: "followedClubs must be an array",
+        });
+      }
+      // Mongoose will cast string IDs to ObjectId for followedClubs schema
+      updatePayload.followedClubs = followedClubs;
+    }
+
+    // Find and update user with onboarding data
+    const updatedUser = await user.findByIdAndUpdate(userId, updatePayload, {
+      new: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({

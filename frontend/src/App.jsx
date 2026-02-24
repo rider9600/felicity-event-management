@@ -27,6 +27,9 @@ const OrganizerDashboard = React.lazy(
   () => import("./pages/OrganizerDashboard"),
 );
 const OrganizerEvents = React.lazy(() => import("./pages/OrganizerEvents"));
+const OrganizerProfile = React.lazy(
+  () => import("./pages/OrganizerProfile"),
+);
 const OrganizerAnalytics = React.lazy(
   () => import("./pages/OrganizerAnalytics"),
 );
@@ -37,7 +40,12 @@ const AdminDashboard = React.lazy(() => import("./pages/AdminDashboard"));
 const Analytics = React.lazy(() => import("./pages/Analytics"));
 const ManageUsers = React.lazy(() => import("./pages/ManageUsers"));
 const OrganizerDetail = React.lazy(() => import("./pages/OrganizerDetail"));
-const PasswordResetRequests = React.lazy(() => import("./pages/PasswordResetRequests"));
+const PasswordResetRequests = React.lazy(
+  () => import("./pages/PasswordResetRequests"),
+);
+const OrganizerPasswordReset = React.lazy(
+  () => import("./pages/OrganizerPasswordReset"),
+);
 const ManageClubs = React.lazy(() => import("./pages/ManageClubs"));
 
 // Role-based route component
@@ -77,7 +85,20 @@ function AppContent() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/clubs" element={<ClubsOrganizers />} />
-                <Route path="/organizers/:organizerId" element={<ErrorBoundary><React.Suspense fallback={<div className="loading-fallback">Loading...</div>}><OrganizerDetail /></React.Suspense></ErrorBoundary>} />
+                <Route
+                  path="/organizers/:organizerId"
+                  element={
+                    <ErrorBoundary>
+                      <React.Suspense
+                        fallback={
+                          <div className="loading-fallback">Loading...</div>
+                        }
+                      >
+                        <OrganizerDetail />
+                      </React.Suspense>
+                    </ErrorBoundary>
+                  }
+                />
 
                 {/* Role-based dashboard redirect */}
                 <Route
@@ -158,6 +179,17 @@ function AppContent() {
                 />
 
                 <Route
+                  path="/organizer/profile"
+                  element={
+                    <ErrorBoundary>
+                      <ProtectedRoute allowedRoles={["organizer", "admin"]}>
+                        <OrganizerProfile />
+                      </ProtectedRoute>
+                    </ErrorBoundary>
+                  }
+                />
+
+                <Route
                   path="/organizer/events/:eventId"
                   element={
                     <ErrorBoundary>
@@ -196,6 +228,17 @@ function AppContent() {
                     <ErrorBoundary>
                       <ProtectedRoute allowedRoles={["organizer", "admin"]}>
                         <OrganizerAnalytics />
+                      </ProtectedRoute>
+                    </ErrorBoundary>
+                  }
+                />
+
+                <Route
+                  path="/organizer/password-reset"
+                  element={
+                    <ErrorBoundary>
+                      <ProtectedRoute allowedRoles={["organizer"]}>
+                        <OrganizerPasswordReset />
                       </ProtectedRoute>
                     </ErrorBoundary>
                   }

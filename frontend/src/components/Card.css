@@ -1,50 +1,31 @@
-/* ============================================
-   CARD - NEO-BRUTALISM STYLE
-   ============================================ */
-
 .card {
-  border: var(--border-medium) solid #000;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
   padding: 0;
-  margin: var(--space-4) 0;
-  background-color: var(--off-white);
-  box-shadow: var(--shadow-large);
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(
-    90deg,
-    var(--hot-pink),
-    var(--neon-cyan),
-    var(--neon-yellow)
-  );
+  margin: 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base),
+    transform var(--transition-base),
+    border-color var(--transition-base);
 }
 
 .card-title {
   margin: 0;
-  padding: var(--space-4);
-  color: #000;
+  padding: var(--space-4) var(--space-6);
+  color: var(--text-primary);
   font-size: var(--text-xl);
-  font-family: var(--font-chunk);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: var(--border-thin) solid #000;
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .card-content {
-  color: #333;
-  padding: var(--space-4);
+  color: var(--text-secondary);
+  padding: var(--space-4) var(--space-6);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-pink);
-  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-color);
+  transform: translateY(-2px);
 }

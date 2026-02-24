@@ -1,7 +1,3 @@
-/* ===========================================
-   CREATE EVENT - NEO-BRUTALISM STYLE
-   =========================================== */
-
 .create-event-page {
   max-width: 800px;
   margin: 0 auto;
@@ -11,15 +7,16 @@
 .create-event-header {
   margin-bottom: var(--space-8);
   padding: var(--space-6);
-  background: var(--cream);
-  border: var(--border-bold);
-  box-shadow: var(--shadow-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .create-event-header h1 {
   font-size: 2.5rem;
   font-weight: 900;
-  color: var(--black);
+  color: var(--text-primary);
   margin: var(--space-4) 0 var(--space-2) 0;
   font-family: var(--font-chunk);
   text-transform: uppercase;
@@ -38,29 +35,18 @@
 
 .form-section {
   padding: var(--space-6);
-  background: var(--white);
-  border: var(--border-bold);
-  box-shadow: var(--shadow-md);
-  position: relative;
-}
-
-.form-section::before {
-  content: "";
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  right: -6px;
-  bottom: -6px;
-  background: var(--black);
-  z-index: -1;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .section-title {
   font-size: var(--text-xl);
   font-weight: 800;
-  color: var(--black);
+  color: var(--text-primary);
   margin-bottom: var(--space-6);
-  border-bottom: 4px solid var(--neon-cyan);
+  border-bottom: 2px solid var(--border-light);
   padding-bottom: var(--space-3);
   font-family: var(--font-chunk);
   text-transform: uppercase;
@@ -90,23 +76,24 @@
   gap: var(--space-3);
   cursor: pointer;
   font-size: var(--text-base);
-  color: var(--black);
+  color: var(--text-primary);
   font-weight: 600;
   padding: var(--space-3);
-  background: var(--cream);
-  border: 3px solid var(--black);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
   transition: var(--transition-base);
 }
 
 .checkbox-item:hover {
-  background: var(--neon-cyan);
+  background: var(--bg-tertiary);
 }
 
 .checkbox-item input[type="checkbox"] {
   width: 1.5rem;
   height: 1.5rem;
   margin: 0;
-  accent-color: var(--hot-pink);
+  accent-color: var(--brand-primary);
 }
 
 .checkbox-item span {
@@ -119,8 +106,9 @@
   gap: var(--space-4);
   margin-top: var(--space-6);
   padding: var(--space-6);
-  background: var(--cream);
-  border: var(--border-bold);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
   box-shadow: var(--shadow-sm);
 }
 
@@ -133,13 +121,13 @@
   text-align: center;
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
-  border-bottom: 4px solid var(--black);
+  border-bottom: 2px solid var(--border-light);
 }
 
 .preview-header h2 {
   font-size: 2rem;
   font-weight: 900;
-  color: var(--black);
+  color: var(--text-primary);
   margin-bottom: var(--space-3);
   font-family: var(--font-chunk);
   text-transform: uppercase;
@@ -147,13 +135,14 @@
 
 .preview-type {
   display: inline-block;
-  background: var(--neon-cyan);
-  color: var(--black);
+  background: rgba(35,106,242,0.1);
+  color: var(--brand-primary);
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: 700;
   text-transform: uppercase;
-  border: 3px solid var(--black);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
   font-family: var(--font-chunk);
 }
 
@@ -172,9 +161,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
-  background: var(--cream);
+  background: var(--bg-primary);
   padding: var(--space-5);
-  border: 3px solid var(--black);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
 }
 
 .preview-details > div {
@@ -185,10 +175,10 @@
 
 .preview-merchandise,
 .preview-additional {
-  background: var(--cream);
+  background: var(--bg-card);
   padding: var(--space-5);
-  border: 3px solid var(--black);
-  border-left: 8px solid var(--hot-pink);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
 }
 
 .preview-merchandise h4 {
@@ -204,9 +194,10 @@
 }
 
 .preview-tags {
-  background: var(--cream);
+  background: var(--bg-card);
   padding: var(--space-4);
-  border: 3px solid var(--black);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
 }
 
 /* Responsive Design */
@@ -271,12 +262,8 @@
 }
 
 .form-section:hover {
-  transform: translate(-2px, -2px);
-}
-
-.form-section:hover::before {
-  top: 8px;
-  left: 8px;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .form-actions button:disabled {
@@ -286,11 +273,11 @@
 
 /* Focus States */
 .checkbox-item:focus-within {
-  background: var(--neon-cyan);
+  background: var(--bg-tertiary);
 }
 
 .checkbox-item input:focus {
-  outline: 3px solid var(--hot-pink);
+  outline: 3px solid var(--brand-primary);
   outline-offset: 2px;
 }
 
@@ -301,12 +288,12 @@
 
 /* Validation States */
 .form-row .input-error {
-  border-color: var(--hot-pink);
+  border-color: var(--status-error);
 }
 
 .required-field::after {
   content: " *";
-  color: var(--hot-pink);
+  color: var(--status-error);
 }
 
 /* Enhanced Input Styling */
@@ -324,8 +311,8 @@
 .form-section input:focus,
 .form-section select:focus,
 .form-section textarea:focus {
-  border-color: var(--neon-cyan);
-  box-shadow: 4px 4px 0 var(--neon-cyan);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(35,106,242,0.12);
 }
 
 /* Special styling for disabled merchandise fields */
@@ -336,7 +323,7 @@
 
 /* Success States */
 .form-success {
-  color: var(--neon-green);
+  color: var(--status-success);
   font-size: var(--text-sm);
   margin-top: var(--space-2);
   font-weight: 700;
@@ -344,7 +331,7 @@
 
 /* Error States */
 .form-error {
-  color: var(--hot-pink);
+  color: var(--status-error);
   font-size: var(--text-sm);
   margin-top: var(--space-2);
   font-weight: 700;
@@ -363,7 +350,7 @@
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: var(--hot-pink);
+  background: var(--brand-primary);
 }
 
 .preview-content > * {

@@ -1,33 +1,16 @@
-/* ============================================
-   HOME PAGE - NEO-BRUTALISM STYLE
-   ============================================ */
-
 .home {
   min-height: 100vh;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-primary);
 }
 
 .hero {
-  background: #000;
-  color: var(--off-white);
-  padding: var(--space-24) var(--space-8);
+  background: var(--brand-dark);
+  color: var(--dark-text-primary);
+  padding: var(--space-16) var(--space-8);
   text-align: center;
   position: relative;
   overflow: hidden;
-  border-bottom: var(--border-thick) solid var(--hot-pink);
-}
-
-/* Retro grid background */
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(transparent 0%, var(--hot-pink) 2%, transparent 3%),
-    linear-gradient(90deg, transparent 0%, var(--neon-cyan) 2%, transparent 3%);
-  background-size: 80px 80px;
-  opacity: 0.1;
-  animation: grid-move 20s linear infinite;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 
 .hero-content {
@@ -38,25 +21,18 @@
 }
 
 .hero-title {
-  font-size: var(--text-6xl);
+  font-size: var(--text-4xl);
   font-weight: 700;
   margin-bottom: var(--space-4);
   line-height: 1.1;
-  font-family: var(--font-monoton);
-  color: var(--cream);
-  text-shadow:
-    0 0 10px var(--cream),
-    0 0 20px var(--cream),
-    0 0 40px var(--hot-pink);
-  animation: neon-breathe 3s ease-in-out infinite;
+  color: var(--dark-text-primary);
 }
 
 .hero-subtitle {
   font-size: var(--text-xl);
   margin-bottom: var(--space-8);
   line-height: 1.6;
-  font-family: var(--font-dm-sans);
-  color: var(--off-white);
+  color: var(--dark-text-secondary);
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -71,26 +47,21 @@
 
 .stats-section {
   margin: var(--space-12) 0;
-  padding: var(--space-8);
+  padding: var(--space-8) 0;
 }
 
 .section-title {
   font-size: var(--text-3xl);
   font-weight: 700;
-  color: var(--cream);
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
   text-align: center;
-  font-family: var(--font-chunk);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .section-subtitle {
-  color: var(--off-white);
+  color: var(--text-secondary);
   text-align: center;
   margin-bottom: var(--space-8);
-  font-family: var(--font-dm-sans);
-  opacity: 0.8;
 }
 
 .stats-grid {
@@ -102,7 +73,7 @@
 
 .featured-events {
   margin: var(--space-16) 0;
-  padding: var(--space-8);
+  padding: var(--space-8) 0;
 }
 
 .section-header {
@@ -111,7 +82,7 @@
   align-items: flex-end;
   margin-bottom: var(--space-8);
   padding-bottom: var(--space-4);
-  border-bottom: var(--border-medium) solid var(--hot-pink);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .events-grid {
@@ -123,10 +94,9 @@
 .features-section {
   margin: var(--space-16) 0;
   padding: var(--space-12) var(--space-8);
-  background: #000;
-  border: var(--border-medium) solid var(--neon-cyan);
-  box-shadow: var(--shadow-cyan);
-  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .features-grid {
@@ -139,15 +109,16 @@
 .feature {
   text-align: center;
   padding: var(--space-6);
-  background: var(--off-white);
-  border: var(--border-medium) solid #000;
-  box-shadow: var(--shadow-medium);
-  transition: all var(--transition-normal);
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
 }
 
 .feature:hover {
-  transform: translateY(-0.5rem);
-  box-shadow: var(--shadow-pink);
+  transform: translateY(-0.25rem);
+  box-shadow: var(--shadow-md);
 }
 
 .feature-icon {
@@ -158,16 +129,13 @@
 .feature-title {
   font-size: var(--text-xl);
   font-weight: 700;
-  color: #000;
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
-  font-family: var(--font-chunk);
-  text-transform: uppercase;
 }
 
 .feature p {
-  color: #333;
+  color: var(--text-secondary);
   line-height: 1.6;
-  font-family: var(--font-dm-sans);
 }
 
 /* Responsive Styles */

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useApi } from "../hooks/useApi";
 import DashboardCard from "../components/cards/DashboardCard";
-import TicketCard from "../components/cards/TicketCard";
 import EventCard from "../components/cards/EventCard";
 import PageContainer from "../components/layout/PageContainer";
 import Button from "../components/common/Button";
@@ -15,6 +14,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { apiCall, loading } = useApi();
+
   const [dashboardData, setDashboardData] = useState({
     upcoming: [],
     normalHistory: [],
@@ -24,7 +24,11 @@ const Dashboard = () => {
   });
   const [recommendedEvents, setRecommendedEvents] = useState([]);
   const [activeTab, setActiveTab] = useState("upcoming");
-  const [stats, setStats] = useState({ totalEvents: 0, upcomingEvents: 0, completedEvents: 0 });
+  const [stats, setStats] = useState({
+    totalEvents: 0,
+    upcomingEvents: 0,
+    completedEvents: 0,
+  });
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +43,6 @@ const Dashboard = () => {
         apiCall("/point/participant/recommended-events"),
       ]);
 
-      // getDashboard returns { upcoming, normalHistory, merchandiseHistory, completed, cancelledRejected }
       if (dashRes && !dashRes.error) {
         const data = {
           upcoming: dashRes.upcoming || [],
@@ -48,8 +51,9 @@ const Dashboard = () => {
           completed: dashRes.completed || [],
           cancelledRejected: dashRes.cancelledRejected || [],
         };
+
         setDashboardData(data);
-        // Compute stats
+
         const allTickets = [
           ...data.upcoming,
           ...data.normalHistory,
@@ -58,6 +62,7 @@ const Dashboard = () => {
           ...data.cancelledRejected,
         ];
         const unique = [...new Map(allTickets.map((t) => [t._id, t])).values()];
+
         setStats({
           totalEvents: unique.length,
           upcomingEvents: data.upcoming.length,
@@ -65,7 +70,6 @@ const Dashboard = () => {
         });
       }
 
-      // Recommended events returns an array of events
       if (recRes && Array.isArray(recRes)) {
         setRecommendedEvents(recRes.slice(0, 4));
       } else if (recRes && Array.isArray(recRes.events)) {
@@ -78,30 +82,49 @@ const Dashboard = () => {
     }
   };
 
-  const handleViewTicket = (ticket) => {
+  const handleViewTicket = () => {
     navigate("/tickets");
   };
 
   const getActiveTabTickets = () => {
     switch (activeTab) {
-      case "upcoming":      return dashboardData.upcoming;
-      case "normal":        return dashboardData.normalHistory;
-      case "merchandise":   return dashboardData.merchandiseHistory;
-      case "completed":     return dashboardData.completed;
-      case "cancelled":     return dashboardData.cancelledRejected;
-      default:              return [];
+      case "upcoming":
+        return dashboardData.upcoming;
+      case "normal":
+        return dashboardData.normalHistory;
+      case "merchandise":
+        return dashboardData.merchandiseHistory;
+      case "completed":
+        return dashboardData.completed;
+      case "cancelled":
+        return dashboardData.cancelledRejected;
+      default:
+        return [];
     }
   };
 
   const renderTicketRecord = (ticket) => {
     const event = ticket.eventId || {};
+
+    const organizerName =
+      event.organizerId?.organizerName ||
+      `${event.organizerId?.firstname || ""} ${
+        event.organizerId?.lastname || ""
+      }`.trim() ||
+      event.club?.clubName ||
+      "";
+
     const getStatusColor = (status) => {
       switch (status) {
-        case "active":    return "success";
-        case "completed": return "primary";
+        case "active":
+          return "success";
+        case "completed":
+          return "primary";
         case "cancelled":
-        case "rejected":  return "danger";
-        default:          return "default";
+        case "rejected":
+          return "danger";
+        default:
+          return "default";
       }
     };
 
@@ -109,26 +132,46 @@ const Dashboard = () => {
       <div key={ticket._id || ticket.ticketId} className="ticket-record">
         <div className="record-left">
           <div className="event-info">
-            <h4>{event.eventName || "Unknown Event"}</h4>
-            <p className="event-type">Type: <span>{event.eventType || "—"}</span></p>
-            <p className="organizer-info">
-              {event.eventStartDate
-                ? `Starts: ${new Date(event.eventStartDate).toLocaleDateString()}`
-                : ""}
+            <h4 className="event-name">
+              {event.eventName || "Unknown Event"}
+            </h4>
+            <p className="event-meta">
+              <span className="event-type-label">
+                {event.eventType || "—"}
+              </span>
+              {organizerName && (
+                <span className="organizer-label">• {organizerName}</span>
+              )}
             </p>
+            {event.eventStartDate && (
+              <p className="event-schedule">
+                {new Date(event.eventStartDate).toLocaleDateString()}{" "}
+                {event.eventEndDate &&
+                  event.eventEndDate !== event.eventStartDate &&
+                  `– ${new Date(
+                    event.eventEndDate,
+                  ).toLocaleDateString()}`}
+              </p>
+            )}
             {ticket.purchaseDetails && (
               <p className="purchase-info">
-                Item: <span>{ticket.purchaseDetails.name || ticket.purchaseDetails.itemName}</span>
+                Item:{" "}
+                <span>
+                  {ticket.purchaseDetails.name ||
+                    ticket.purchaseDetails.itemName}
+                </span>
               </p>
             )}
           </div>
         </div>
         <div className="record-right">
-          <Badge variant={getStatusColor(ticket.status)}>{ticket.status}</Badge>
+          <Badge variant={getStatusColor(ticket.status)}>
+            {ticket.status}
+          </Badge>
           <div className="record-actions">
             <button
               className="ticket-id-link"
-              onClick={() => handleViewTicket(ticket)}
+              onClick={handleViewTicket}
               title="View my tickets"
             >
               Ticket ID: {ticket.ticketId}
@@ -155,27 +198,54 @@ const Dashboard = () => {
         </Button>
       }
     >
-      {/* Stats Overview */}
       <div className="dashboard-stats">
-        <DashboardCard title="Total Events" value={stats.totalEvents} icon="📅" variant="primary" />
-        <DashboardCard title="Upcoming Events" value={stats.upcomingEvents} icon="⏰" variant="warning" />
-        <DashboardCard title="Completed Events" value={stats.completedEvents} icon="✅" variant="success" />
+        <DashboardCard
+          title="Total Events"
+          value={stats.totalEvents}
+          icon="📅"
+          variant="primary"
+        />
+        <DashboardCard
+          title="Upcoming Events"
+          value={stats.upcomingEvents}
+          icon="⏰"
+          variant="warning"
+        />
+        <DashboardCard
+          title="Completed Events"
+          value={stats.completedEvents}
+          icon="✔"
+          variant="success"
+        />
       </div>
 
-      {/* Participation History Section */}
       <section className="dashboard-section">
         <div className="section-header">
           <h2>My Participation History</h2>
         </div>
 
-        {/* Tabs */}
         <div className="participation-tabs">
           {[
-            { key: "upcoming",     label: `Upcoming (${dashboardData.upcoming.length})` },
-            { key: "normal",       label: `Normal (${dashboardData.normalHistory.length})` },
-            { key: "merchandise",  label: `Merchandise (${dashboardData.merchandiseHistory.length})` },
-            { key: "completed",    label: `Completed (${dashboardData.completed.length})` },
-            { key: "cancelled",    label: `Cancelled/Rejected (${dashboardData.cancelledRejected.length})` },
+            {
+              key: "upcoming",
+              label: `Upcoming (${dashboardData.upcoming.length})`,
+            },
+            {
+              key: "normal",
+              label: `Normal (${dashboardData.normalHistory.length})`,
+            },
+            {
+              key: "merchandise",
+              label: `Merchandise (${dashboardData.merchandiseHistory.length})`,
+            },
+            {
+              key: "completed",
+              label: `Completed (${dashboardData.completed.length})`,
+            },
+            {
+              key: "cancelled",
+              label: `Cancelled/Rejected (${dashboardData.cancelledRejected.length})`,
+            },
           ].map(({ key, label }) => (
             <button
               key={key}
@@ -187,7 +257,6 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Ticket Records */}
         {activeTickets.length > 0 ? (
           <div className="ticket-records">
             {activeTickets.map((ticket) => renderTicketRecord(ticket))}
@@ -202,12 +271,15 @@ const Dashboard = () => {
         )}
       </section>
 
-      {/* Recommended Events */}
       {recommendedEvents.length > 0 && (
         <section className="dashboard-section">
           <div className="section-header">
             <h2>Recommended for You</h2>
-            <Button variant="outline" size="small" onClick={() => navigate("/events")}>
+            <Button
+              variant="outline"
+              size="small"
+              onClick={() => navigate("/events")}
+            >
               View All Events
             </Button>
           </div>

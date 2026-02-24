@@ -195,6 +195,16 @@ const EventCard = ({
     return { message, type };
   };
 
+  const getOrganizerLabel = () => {
+    if (!organizerId) return null;
+    const name =
+      organizerId.organizerName ||
+      `${organizerId.firstname || ""} ${organizerId.lastname || ""}`.trim();
+    if (name) return name;
+    if (event.club && event.club.clubName) return event.club.clubName;
+    return null;
+  };
+
   const renderActions = () => {
     if (!showActions) return null;
 
@@ -296,6 +306,11 @@ const EventCard = ({
       <div className="event-card__header">
         <div className="event-card__title-row">
           <h4 className="event-card__title">{eventName}</h4>
+          {getOrganizerLabel() && (
+            <p className="event-card__organizer">
+              by <span>{getOrganizerLabel()}</span>
+            </p>
+          )}
           <div className="event-card__badges">
             <Badge variant={getStatusVariant(status)}>{status}</Badge>
             {(() => {
@@ -346,10 +361,10 @@ const EventCard = ({
                 style={{
                   color:
                     regTimeInfo.type === "urgent"
-                      ? "red"
+                      ? "var(--status-warning)"
                       : regTimeInfo.type === "expired"
-                        ? "gray"
-                        : "green",
+                        ? "var(--text-muted)"
+                        : "var(--status-success)",
                   fontWeight: regTimeInfo.type === "urgent" ? "bold" : "normal",
                 }}
               >
@@ -369,12 +384,24 @@ const EventCard = ({
               {registrationCount}/{registrationLimit}
               {registrationLimit - registrationCount <= 10 &&
                 registrationLimit - registrationCount > 0 && (
-                  <span style={{ color: "orange", marginLeft: "4px" }}>
+                  <span
+                    style={{
+                      color: "var(--status-warning)",
+                      marginLeft: "4px",
+                    }}
+                  >
                     (Only {registrationLimit - registrationCount} spots left!)
                   </span>
                 )}
               {registrationCount >= registrationLimit && (
-                <span style={{ color: "red", marginLeft: "4px" }}>(Full)</span>
+                <span
+                  style={{
+                    color: "var(--status-error)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  (Full)
+                </span>
               )}
             </span>
           </div>

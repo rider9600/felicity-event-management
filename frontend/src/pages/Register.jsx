@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useApi } from "../hooks/useApi";
 import Card from "../components/Card";
 import Input from "../components/common/Input";
 import Button from "../components/common/Button";
@@ -11,13 +12,18 @@ const Register = () => {
     firstname: "",
     lastname: "",
     email: "",
+    contactNumber: "",
+    college: "",
+    interests: "",
     password: "",
     confirmPassword: "",
     participantType: "non-iiit",
   });
   const [errors, setErrors] = useState({});
 
-  const { register, loading, error, isAuthenticated, clearError } = useAuth();
+  const { register, loading, error, isAuthenticated, clearError, updateUser } =
+    useAuth();
+  const { apiCall } = useApi();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -90,6 +96,19 @@ const Register = () => {
         "IIIT participants must use @students.iiit.ac.in or @research.iiit.ac.in email";
     }
 
+    if (!formData.contactNumber) {
+      newErrors.contactNumber = "Mobile number is required";
+    } else if (!/^[0-9]{10}$/.test(formData.contactNumber)) {
+      newErrors.contactNumber = "Mobile number must be exactly 10 digits";
+    }
+
+    if (
+      formData.participantType === "non-iiit" &&
+      !formData.college.trim()
+    ) {
+      newErrors.college = "College / organization name is required";
+    }
+
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
@@ -111,10 +130,64 @@ const Register = () => {
       return;
     }
 
-    const { confirmPassword, ...registrationData } = formData;
+    const interestsArray = formData.interests
+      ? formData.interests
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+
+    const { confirmPassword, ...rest } = formData;
+
+    const registrationData = {
+      ...rest,
+      college:
+        rest.participantType === "iiit"
+          ? "IIITH"
+          : rest.college.trim(),
+    };
+
     const result = await register(registrationData);
 
     if (result.success) {
+      // Persist contact number and college on participant profile
+      try {
+        const profileRes = await apiCall("/point/participant/profile", {
+          method: "PUT",
+          body: JSON.stringify({
+            contactNumber: formData.contactNumber,
+            college: registrationData.college,
+          }),
+        });
+
+        if (profileRes?.success && profileRes.data?.participant) {
+          updateUser(profileRes.data.participant);
+        } else {
+          updateUser({
+            contactNumber: formData.contactNumber,
+            college: registrationData.college,
+          });
+        }
+      } catch {
+        // Fall back to updating local user only
+        updateUser({
+          contactNumber: formData.contactNumber,
+          college: registrationData.college,
+        });
+      }
+
+      // Store initial interests into preferences so they show in Profile
+      try {
+        if (interestsArray.length) {
+          await apiCall("/point/preferences/set", {
+            method: "POST",
+            body: JSON.stringify({ interests: interestsArray }),
+          });
+        }
+      } catch {
+        // ignore preference save errors during registration
+      }
+
       navigate("/onboarding", { replace: true });
     }
   };
@@ -180,13 +253,50 @@ const Register = () => {
             />
 
             <Input
-              label="Participant Type"
-              type="select"
-              name="participantType"
-              value={formData.participantType}
+              label="Mobile Number"
+              type="tel"
+              name="contactNumber"
+              value={formData.contactNumber}
               onChange={handleChange}
-              options={participantTypeOptions}
+              error={errors.contactNumber}
               required
+              placeholder="10-digit mobile number"
+              maxLength={10}
+            />
+
+            <Input
+              label="College / Organization"
+              type="text"
+              name="college"
+              value={
+                formData.participantType === "iiit"
+                  ? "IIITH"
+                  : formData.college
+              }
+              onChange={handleChange}
+              error={errors.college}
+              required={formData.participantType === "non-iiit"}
+              disabled={formData.participantType === "iiit"}
+              placeholder="Your college or organization name"
+            />
+
+          <Input
+            label="Participant Type"
+            type="select"
+            name="participantType"
+            value={formData.participantType}
+            onChange={handleChange}
+            options={participantTypeOptions}
+            required
+          />
+
+            <Input
+              label="Interests (comma-separated)"
+              type="text"
+              name="interests"
+              value={formData.interests}
+              onChange={handleChange}
+              placeholder="e.g., coding, music, sports"
             />
 
             <Input

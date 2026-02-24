@@ -51,6 +51,14 @@ export const login = async (req, res) => {
         msg: " U not existed in my world   (There is no member registered with the given email)",
       });
     }
+
+    // Block archived / removed accounts from logging in
+    if (newuser.isArchived) {
+      return res.status(403).json({
+        msg: "This account has been disabled. Please contact the admin.",
+      });
+    }
+
     const userexisted = await bcrypt.compare(password, newuser.password);
     if (!userexisted) {
       return res
