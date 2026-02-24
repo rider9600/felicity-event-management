@@ -25,7 +25,27 @@ import forumroutes from "./routes/forumroutes.js";
 import path from "path";
 
 const app = express();
-app.use(cors());
+
+// CORS configuration: allow frontend origins + credentials
+const allowedOrigins = [
+  "http://localhost:5173",
+  // Add deployed frontend origin here when you host it (e.g. Netlify/Vercel)
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow non-browser or same-origin requests
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 // Serve uploaded payment proofs
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

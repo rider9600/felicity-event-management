@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const ConnectionTest = () => {
   const [testResults, setTestResults] = useState([]);
   const [currentTest, setCurrentTest] = useState("");
@@ -16,7 +19,7 @@ const ConnectionTest = () => {
     // Test 1: Backend Server Connection
     setCurrentTest("Testing Backend Server...");
     try {
-      const response = await fetch("/point/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/point/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: "test@test.com", password: "wrong" }),
@@ -34,7 +37,7 @@ const ConnectionTest = () => {
     // Test 2: Database Connection via Admin Login
     setCurrentTest("Testing Database Connection...");
     try {
-      const response = await fetch("/point/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/point/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -60,7 +63,7 @@ const ConnectionTest = () => {
         // Test 4: Protected Route with Token
         setCurrentTest("Testing Protected Routes...");
         try {
-          const protectedResponse = await fetch("/point/test", {
+          const protectedResponse = await fetch(`${API_BASE_URL}/point/test`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${data.token}`,
@@ -90,7 +93,7 @@ const ConnectionTest = () => {
     setCurrentTest("Testing Database Write Operations...");
     try {
       const timestamp = Date.now();
-      const response = await fetch("/point/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/point/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

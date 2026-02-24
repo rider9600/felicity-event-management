@@ -2,6 +2,9 @@ import { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { setCurrentToken, getStoredRefreshToken } from "../context/AuthContext";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,7 +20,7 @@ export const useApi = () => {
       const refreshToken = getStoredRefreshToken();
       if (!refreshToken) return null;
 
-      const res = await fetch("http://localhost:5000/point/auth/refresh-token", {
+      const res = await fetch(`${API_BASE_URL}/point/auth/refresh-token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
@@ -53,7 +56,7 @@ export const useApi = () => {
           ...options.headers,
         },
       };
-      return fetch(`http://localhost:5000${url}`, config);
+      return fetch(`${API_BASE_URL}${url}`, config);
     };
 
     try {

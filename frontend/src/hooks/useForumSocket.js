@@ -4,6 +4,12 @@ import io from "socket.io-client";
 // Socket.io connection for real-time forum updates
 let socket = null;
 
+const SOCKET_BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL || window.location.origin).replace(
+    /\/point$/,
+    "",
+  );
+
 export const useForumSocket = (eventId, onNewMessage, token) => {
   const socketRef = useRef(null);
 
@@ -12,7 +18,7 @@ export const useForumSocket = (eventId, onNewMessage, token) => {
 
     // Connect to WebSocket if not already connected
     if (!socket) {
-      socket = io(window.location.origin, {
+      socket = io(SOCKET_BASE_URL, {
         auth: {
           token: token || localStorage.getItem("token"),
         },

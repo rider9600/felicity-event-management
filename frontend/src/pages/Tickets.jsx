@@ -99,10 +99,12 @@ const Tickets = () => {
     setProofMsg(null);
     try {
       const formData = new FormData();
+      const apiBase =
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
       formData.append("proof", proofFile);
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://localhost:5000/point/merchandise/${selectedTicket.ticketId}/proof`,
+        `${apiBase}/point/merchandise/${selectedTicket.ticketId}/proof`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -140,8 +142,10 @@ const Tickets = () => {
     const startISO = event.eventStartDate ? new Date(event.eventStartDate).toISOString() : "";
     const endISO = event.eventEndDate ? new Date(event.eventEndDate).toISOString() : startISO;
     const eventId = event._id;
+    const apiBase =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
     return {
-      ics: `http://localhost:5000/point/events/${eventId}/calendar.ics`,
+      ics: `${apiBase}/point/events/${eventId}/calendar.ics`,
       google: `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&location=${location}`,
       outlook: `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${encodeURIComponent(startISO)}&enddt=${encodeURIComponent(endISO)}&body=${details}&location=${location}`,
     };

@@ -244,8 +244,10 @@ const EventDetails = () => {
     const endISO = event.eventEndDate
       ? new Date(event.eventEndDate).toISOString()
       : startISO;
+    const apiBase =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
     return {
-      ics: `http://localhost:5000/point/events/${eventId}/calendar.ics`,
+      ics: `${apiBase}/point/events/${eventId}/calendar.ics`,
       google: `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&location=${location}`,
       outlook: `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${encodeURIComponent(startISO)}&enddt=${encodeURIComponent(endISO)}&body=${details}&location=${location}`,
     };

@@ -250,8 +250,8 @@ const Forum = ({ eventId }) => {
                 marginTop: "8px",
               }}
             >
-              If this takes too long, make sure backend is running on
-              http://localhost:5000
+              If this takes too long, make sure the backend API URL is set
+              correctly (VITE_API_BASE_URL) and the server is running.
             </p>
           </div>
         ) : sortedMessages.length === 0 ? (

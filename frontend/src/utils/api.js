@@ -1,11 +1,14 @@
 import axios from "axios";
 import { getCurrentToken } from "../context/AuthContext.js";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: "/point", // This will be proxied to localhost:5000/point by Vite
+  baseURL: `${API_BASE_URL}/point`,
   timeout: 10000,
-  withCredentials: true, // Include credentials (cookies) in requests
+  withCredentials: false,
   headers: {
     "Content-Type": "application/json",
   },

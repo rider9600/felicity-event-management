@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 const AuthContext = createContext();
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const authReducer = (state, action) => {
   switch (action.type) {
     case "LOGIN_START":
@@ -130,9 +133,8 @@ export const AuthProvider = ({ children }) => {
 
     try {
       // API call to backend for authentication
-      const response = await fetch("/point/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/point/auth/login`, {
         method: "POST",
-        credentials: "include", // Keep cookies if backend still sets them
         headers: {
           "Content-Type": "application/json",
         },
@@ -191,9 +193,8 @@ export const AuthProvider = ({ children }) => {
       console.log("Attempting registration with data:", userData);
 
       // API call to backend for registration
-      const response = await fetch("/point/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/point/auth/register`, {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -234,7 +235,11 @@ const logout = async () => {
   try {
     const token = localStorage.getItem("token");
     if (token) {
-      await fetch("http://localhost:5000/point/auth/logout", {
+      await fetch(
+        `${
+          import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"
+        }/point/auth/logout`,
+        {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
